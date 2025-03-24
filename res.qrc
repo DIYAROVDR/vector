@@ -1,0 +1,47 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/grid.png</file>
+        <file>images/menu.png</file>
+        <file>images/plot.png</file>
+        <file>images/data.png</file>
+        <file>images/info.png</file>
+        <file>images/run_settings.png</file>
+        <file>images/settings.png</file>
+        <file>images/branch-closed.png</file>
+        <file>images/branch-end.png</file>
+        <file>images/branch-more.png</file>
+        <file>images/branch-open.png</file>
+        <file>images/vline.png</file>
+        <file>images/down-arrow.png</file>
+        <file>images/up-arrow.png</file>
+        <file>images/accept_ok_database.png</file>
+        <file>images/remove_delete_database.png</file>
+        <file>images/empty_database.png</file>
+        <file>images/fill_database.png</file>
+        <file>images/close.png</file>
+        <file>images/project.png</file>
+        <file>images/model_settings.png</file>
+        <file>images/create_model.png</file>
+        <file>images/empty.png</file>
+        <file>images/analysis.png</file>
+        <file>images/update.png</file>
+        <file>images/folder_file.png</file>
+        <file>images/home.png</file>
+        <file>images/delete_remove.png</file>
+        <file>images/ok_accept.png</file>
+        <file>images/update_data.png</file>
+        <file>images/init_model.png</file>
+        <file>images/add.png</file>
+        <file>images/load_data_from_db.png</file>
+        <file>images/table.png</file>
+        <file>images/python.png</file>
+        <file>images/export_data_file.png</file>
+        <file>images/import_data_file.png</file>
+        <file>images/vector_logo.png</file>
+        <file>images/delete.png</file>
+        <file>images/nabla.png</file>
+        <file>images/run.png</file>
+        <file>images/vector_logo_zero.png</file>
+        <file>images/initialization.png</file>
+    </qresource>
+</RCC>

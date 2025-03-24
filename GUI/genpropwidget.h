@@ -8,13 +8,13 @@
 #include <QHBoxLayout>
 #include <QButtonGroup>
 
-#include "ttdelegate.h"
 #include "creatorwidgets.h"
 
 #include "../Core/physicalquantity.h"
 #include "generalmodel.h"
 #include "multidelegate.h"
 
+#include "treeview.h"
 
 class GenPropWidget : public QWidget {
     Q_OBJECT
@@ -27,7 +27,7 @@ signals:
 private slots:
 
 private:
-    QTreeView* treeView;
+    TreeView* treeView;
     PhysicalQuantity* physicalQuantity;
 
     QFont mainFont;

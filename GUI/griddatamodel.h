@@ -31,10 +31,18 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
+    void applyData();
+
 signals:
     void dimensChanged();
 
 private:
+    int nx = 1;
+    int ny = 1;
+    int nz = 1;
+    int layers = 1;
+    double vertValPinch = 0.0;
+    double horValPinch = 0.0;
 
     struct TreeNode {
         QString name;
@@ -43,7 +51,12 @@ private:
 
         TreeNode(const QString& name, TreeNode* parent = nullptr) : name(name), parent(parent) {}
         ~TreeNode() { qDeleteAll(children); }
-        int row() const;
+        int row() const {
+            if (parent) {
+                return parent->children.indexOf(const_cast<TreeNode*>(this));
+            }
+            return 0;
+        }
     };
 
     TreeNode* rootNode;
@@ -51,13 +64,14 @@ private:
     TreeNode* nxNode;
     TreeNode* nyNode;
     TreeNode* nzNode;
-    TreeNode* numberOfLayersNode;
+    TreeNode* layersNode;
     TreeNode* gridTypeNode;
     TreeNode* verticalPinchNode;
     TreeNode* horizontalPinchNode;
 
     H5FileManager& h5filemanager;
 
+    Grid::Type currentTypeGrid = Grid::Type::BLOCKCENTERED;
     QMap<Grid::Type, QString> gridTypeNames;
 };
 

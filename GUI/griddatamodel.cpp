@@ -1,9 +1,8 @@
 #include "griddatamodel.h"
 
 GridDataModel::GridDataModel(QObject* parent) : QAbstractItemModel(parent),
-    rootNode(new TreeNode("Root")),
-    h5filemanager(H5FileManager::instance()) {
-
+                                                rootNode(new TreeNode("Root")),
+                                                h5filemanager(H5FileManager::instance()) {
     gridTypeNames = {
         {Grid::Type::BLOCKCENTERED,"Блочно-центрированная геометрия"},
         {Grid::Type::CORNERPOINT,"Геометрия угловой точки"},
@@ -21,8 +20,8 @@ GridDataModel::GridDataModel(QObject* parent) : QAbstractItemModel(parent),
 
     rootNode->children.append(gridDimensionNode);
 
-    numberOfLayersNode = new TreeNode("Число пластов", rootNode);
-    rootNode->children.append(numberOfLayersNode);
+    layersNode = new TreeNode("Число пластов", rootNode);
+    rootNode->children.append(layersNode);
 
     gridTypeNode = new TreeNode("Тип сетки", rootNode);
     rootNode->children.append(gridTypeNode);
@@ -49,40 +48,25 @@ bool GridDataModel::setData(const QModelIndex& index, const QVariant& value, int
     case Qt::EditRole:
         if (node->parent == gridDimensionNode) {
             // Сохраняем размерность сетки
-            std::array<int,3> dim = h5filemanager.dimens();
 
-            int nx = dim[0];
-            int ny = dim[1];
-            int nz = dim[2];
-
-            if (node == nxNode){
+            if (node == nxNode) {
                 nx = value.toInt();
             }
-            if (node == nyNode){
+            if (node == nyNode) {
                 ny = value.toInt();
             }
-            if (node == nzNode){
+            if (node == nzNode) {
                 nz = value.toInt();
             }
-            h5filemanager.setDimens(nx,ny,nz);
             emit dataChanged(index, index, {role});
-            // Логика сохранения в h5filemanager
-        } else if (node == numberOfLayersNode) {
-            // Сохраняем число пластов
-            int layers = value.toInt();
-            // Логика сохранения в h5filemanager
+        } else if (node == layersNode) {
+            layers = value.toInt(); // Сохраняем число пластов
         } else if (node == gridTypeNode) {
-            // Сохраняем тип сетки
-            h5filemanager.setTypeGrid(gridTypeNames.key(value.toString()));
-            // Логика сохранения в h5filemanager
+            currentTypeGrid = gridTypeNames.key(value.toString()); // Сохраняем тип сетки
         } else if (node == verticalPinchNode) {
-            // Сохраняем вертикальное выклинивание
-            QString pinchValue = value.toString();
-            // Логика сохранения в h5filemanager
+            vertValPinch = value.toDouble(); // Сохраняем вертикальное выклинивание
         } else if (node == horizontalPinchNode) {
-            // Сохраняем горизонтальное выклинивание
-            QString pinchValue = value.toString();
-            // Логика сохранения в h5filemanager
+            horValPinch = value.toDouble(); // Сохраняем горизонтальное выклинивание
         } else {
             return false;
         }
@@ -108,49 +92,40 @@ QVariant GridDataModel::data(const QModelIndex& index, int role) const {
             return node->name;
         } else if (index.column() == 1) {
             if (node->parent == gridDimensionNode) {
-                // Возвращаем значение размерности сетки
-                // Сохраняем размерность сетки
-                std::array<int,3> dim = h5filemanager.dimens();
-
-                if (node == nxNode){
-                    return dim[0];
+                if (node == nxNode) {
+                    return nx;
                 }
-                if (node == nyNode){
-                    return dim[1];
+                if (node == nyNode) {
+                    return ny;
                 }
-                if (node == nzNode){
-                    return dim[2];
+                if (node == nzNode) {
+                    return nz;
                 }
 
-            } else if (node == numberOfLayersNode) {
-                // Возвращаем число пластов
-                return QVariant(); // Заглушка
+            } else if (node == layersNode) {
+                return layers;
             } else if (node == gridTypeNode) {
-                // Возвращаем тип сетки
-                return gridTypeNames.value(h5filemanager.typeGrid()); // Заглушка
+                return gridTypeNames.value(currentTypeGrid);
             } else if (node == verticalPinchNode) {
-                // Возвращаем вертикальное выклинивание
-                return QVariant(); // Заглушка
+                return vertValPinch; // Возвращаем вертикальное выклинивание
             } else if (node == horizontalPinchNode) {
-                // Возвращаем горизонтальное выклинивание
-                return QVariant(); // Заглушка
+                return horValPinch;
             }
         }
         break;
 
-    case Qt::UserRole + 1:
+        case Qt::UserRole + 1:
         if (node == gridTypeNode) {
             return QVariant::fromValue(DelegateType::ComboBoxDelegate);
+        }
+        if (node == nxNode || nyNode || nzNode || layersNode) {
+            return QVariant::fromValue(DelegateType::IntSpinBoxDelegate);
         }
         break;
 
     case Qt::UserRole + 2:
         if (node == gridTypeNode) {
-            return QStringList {
-                   "Блочно-центрированная геометрия",
-                   "Геометрия угловой точки",
-                   "Задание сетки вершинами блоков"
-            };
+            return  QVariant( gridTypeNames.values());
         }
         break;
 
@@ -166,6 +141,7 @@ QVariant GridDataModel::data(const QModelIndex& index, int role) const {
     return QVariant();
 }
 
+
 Qt::ItemFlags GridDataModel::flags(const QModelIndex& index) const {
     if (!index.isValid()) {
         return Qt::NoItemFlags;
@@ -175,13 +151,14 @@ Qt::ItemFlags GridDataModel::flags(const QModelIndex& index) const {
 
     if (index.column() == 1) {
         TreeNode* node = static_cast<TreeNode*>(index.internalPointer());
-        if (node->parent == gridDimensionNode || node == numberOfLayersNode || node == gridTypeNode || node == verticalPinchNode || node == horizontalPinchNode) {
+        if (node->parent == gridDimensionNode || node == layersNode || node == gridTypeNode || node == verticalPinchNode || node == horizontalPinchNode) {
             flags |= Qt::ItemIsEditable;
         }
     }
 
     return flags;
 }
+
 
 QVariant GridDataModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (role == Qt::DisplayRole) {
@@ -194,6 +171,7 @@ QVariant GridDataModel::headerData(int section, Qt::Orientation orientation, int
     }
     return QVariant();
 }
+
 
 QModelIndex GridDataModel::index(int row, int column, const QModelIndex& parent) const {
     if (!hasIndex(row, column, parent)) {
@@ -210,6 +188,7 @@ QModelIndex GridDataModel::index(int row, int column, const QModelIndex& parent)
     return QModelIndex();
 }
 
+
 QModelIndex GridDataModel::parent(const QModelIndex& index) const {
     if (!index.isValid()) {
         return QModelIndex();
@@ -225,19 +204,18 @@ QModelIndex GridDataModel::parent(const QModelIndex& index) const {
     return createIndex(parentNode->row(), 0, parentNode);
 }
 
+
 int GridDataModel::rowCount(const QModelIndex& parent) const {
     TreeNode* parentNode = parent.isValid() ? static_cast<TreeNode*>(parent.internalPointer()) : rootNode;
     return parentNode->children.count();
 }
+
 
 int GridDataModel::columnCount(const QModelIndex& parent) const {
     Q_UNUSED(parent);
     return 2;
 }
 
-int GridDataModel::TreeNode::row() const {
-    if (parent) {
-        return parent->children.indexOf(const_cast<TreeNode*>(this));
-    }
-    return 0;
+void GridDataModel::applyData() {
+
 }

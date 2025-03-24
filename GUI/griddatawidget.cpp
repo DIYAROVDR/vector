@@ -2,20 +2,32 @@
 
 GridDataWidget::GridDataWidget(QWidget* parent):
                 QWidget(parent),
-    h5filemanager(H5FileManager::instance()) {
+                treeView(new TreeView(this)),
+                btnLayout(new QHBoxLayout()),
+                btnApply(new QPushButton("Применить",this)),
+                btnImport(new QPushButton("Импорт", this)),
+                btnExport(new QPushButton("Экспорт", this)),
+                h5filemanager(H5FileManager::instance()) {
+
     mainFont.setPointSize(10);
     boldFont.setBold(true);
-    treeView = new QTreeView(this);
+    btnLayout->setSpacing(5);
     setLayout(new QVBoxLayout(this));
     layout()->addWidget(treeView);
+    layout()->addItem(btnLayout);
+    layout()->setContentsMargins(5,0,5,0);
+
+    btnLayout->addWidget(btnExport);
+    btnLayout->addWidget(btnImport);
+    btnLayout->addWidget(btnApply);
+
     griddatamodel = new GridDataModel();
     treeView->setModel(griddatamodel);
-    treeView->setItemDelegate(new ttDelegate(treeView));
     treeView->setItemDelegateForColumn(1, new MultiDelegate());
-    treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     treeView->expandAll();
 
     connect(griddatamodel,&GridDataModel::dimensChanged,this,[&](){emit dimensChanged();});
+    connect(btnApply, &QPushButton::clicked, this, &GridDataWidget::on_btn_apply_clicked);
 }
 
 GridDataWidget::~GridDataWidget() {
@@ -38,7 +50,9 @@ void GridDataWidget::openProject() {
 }
 
 
-void GridDataWidget::on_btn_create_grid_clicked() {
+void GridDataWidget::on_btn_apply_clicked() {
+    griddatamodel->applyData();
+    /*
     const int nx_n = nx + 1;
     const int ny_n = ny + 1;
     const int nz_n = nz + 1;
@@ -84,10 +98,12 @@ void GridDataWidget::on_btn_create_grid_clicked() {
     nodes << x, y, z;
 
     h5filemanager.setNodes(nodes);
+    */
 }
 
 
 void GridDataWidget::on_btn_export_grid_clicked() {
+    /*
     grid = new BlockCenteredGrid();
     grid->setDimens(nx,ny,nz);
 
@@ -155,6 +171,7 @@ void GridDataWidget::on_btn_export_grid_clicked() {
     well->setData(welldata);
 
     well->init();
+    */
 }
 
 

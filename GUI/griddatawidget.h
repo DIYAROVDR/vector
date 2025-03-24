@@ -35,6 +35,7 @@
 
 #include "../GUI/multidelegate.h"
 #include "../GUI/griddatamodel.h"
+#include "treeview.h"
 
 #include <QVBoxLayout>
 
@@ -53,9 +54,8 @@ public:
 signals:
     void dimensChanged();
 
-
 private slots:
-    void on_btn_create_grid_clicked();
+    void on_btn_apply_clicked();
     void on_btn_export_grid_clicked();
     void on_btn_import_grid_clicked();
 
@@ -73,7 +73,11 @@ private:
     int ny = 10;
     int nz = 5;
 
-    QTreeView* treeView;
+    TreeView* treeView;
+    QHBoxLayout* btnLayout;
+    QPushButton* btnApply;
+    QPushButton* btnImport;
+    QPushButton* btnExport;
     void processBlockCenteredGrid(); // Блочно-центрированная геометрия
     void processCornerPointGrid();   // Геометрия угловой точки
     void processVertexDefinedGrid(); // Задание сетки вершинами блоков

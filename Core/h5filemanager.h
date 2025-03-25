@@ -55,7 +55,7 @@ public:
     Grid::Initialization typeInitialization();
     Grid::Type typeGrid();
     std::vector<int> regions();
-    std::array<int,3> dimens();
+    Eigen::Array3i dimens();
 
     Eigen::Matrix<double, Eigen::Dynamic, 4> loadWelltrack(const std::string& name);    
     Eigen::Matrix<double, Eigen::Dynamic, 7> loadPerforation(const std::string& name);

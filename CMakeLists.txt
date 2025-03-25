@@ -8,6 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_definitions(-DQT_ASSUME_STDERR_HAS_CONSOLE=1)
 
 set(QT_VERSION_MAJOR 5)
 
@@ -32,6 +33,7 @@ find_package(Qt5 REQUIRED COMPONENTS
     Widgets
     PrintSupport
     OpenGL
+    Charts
 )
 
 find_package(HDF5 REQUIRED COMPONENTS
@@ -87,6 +89,7 @@ target_link_libraries(vector PRIVATE
   Qt5::Widgets
   Qt5::OpenGL
   Qt5::PrintSupport
+  Qt5::Charts
   ${Python3_LIBRARY}
   ${HDF5_LIBRARIES}
   VTK::CommonColor
@@ -139,8 +142,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D EIGEN_USE_MKL_ALL /D EIGEN_USE_PARDISO")
-
-
 
 
 set_target_properties(vector PROPERTIES

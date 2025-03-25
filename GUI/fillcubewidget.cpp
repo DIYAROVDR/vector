@@ -128,7 +128,12 @@ void FillCubeWidget::dimensChanged() {
 void FillCubeWidget::on_btn_run_script_clicked() {
     QString scriptCode = codeEditor->toPlainText();
     if (scriptCode.trimmed().isEmpty()) {
-        QMessageBox::warning(this, tr("Ошибка"), tr("Отсутствует тело Python скрипта. Пожалуйста, введите код в редакторе."), QMessageBox::Ok);
+        QMessageBox::warning(
+        this,
+        tr("Ошибка"),
+        tr("Отсутствует тело Python скрипта. Пожалуйста, введите код в редакторе."),
+    QMessageBox::Ok
+        );
         return;
     }
 

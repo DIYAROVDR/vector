@@ -2,6 +2,8 @@
 #define PVTMODEL_H
 
 #include <QAbstractItemModel>
+#include <QFont>
+
 
 class PVTModel : public QAbstractItemModel {
     Q_OBJECT
@@ -19,7 +21,26 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 private:
-         // Здесь вы можете добавить свои данные и методы для работы с ними
+    struct TreeNode {
+        QString name;
+        QVector<TreeNode*> children;
+        TreeNode* parent;
+
+        TreeNode(const QString& name, TreeNode* parent = nullptr) : name(name), parent(parent) {}
+        ~TreeNode() { qDeleteAll(children); }
+        int row() const {
+            if (parent) {
+                return parent->children.indexOf(const_cast<TreeNode*>(this));
+            }
+            return 0;
+        }
+    };
+    TreeNode* rootNode;
+    TreeNode* densityNode;
+    TreeNode* waterDensityNode;
+    TreeNode* oilDensityNode;
+    TreeNode* gasDensityNode;
+    TreeNode* waterPropNode;
 };
 
 #endif // PVTMODEL_H

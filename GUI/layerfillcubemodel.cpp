@@ -144,7 +144,7 @@ void LayerFillCubeModel::saveCube() {
 
 
 void LayerFillCubeModel::updateDimens() {
-    std::array<int, 3> dim = h5filemanager.dimens();
+    Eigen::Array3i dim = h5filemanager.dimens();
     int nzold = nz;
     nx = dim[0];
     ny = dim[1];

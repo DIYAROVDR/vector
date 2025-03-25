@@ -21,10 +21,11 @@
 #include "../Core/pvcdo.h"
 #include "../Core/density.h"
 
+#include "treeview.h"
+#include "pvtmodel.h"
+#include "multidelegate.h"
+#include "chartview.h"
 
-namespace Ui {
-class PVTDataWidget;
-}
 
 class PVTDataWidget : public QWidget {
     Q_OBJECT
@@ -45,6 +46,10 @@ private:
     int curreg = 0;
     QFont mainfont;
     QFont boldfont;
+    QSplitter* splmain;
+    TreeView* treeView;
+    ChartView* charView;
+    PVTModel* pvtmodel;
 };
 
 #endif // PVTDATAFORM_H

@@ -319,8 +319,8 @@ std::vector<int> H5FileManager::regions() {
 }
 
 
-std::array<int, 3> H5FileManager::dimens() {
-    std::array<int,3> dim{1,1,1};
+Eigen::Array3i H5FileManager::dimens() {
+    Eigen::Array3i dim{1,1,1};
 
     if (!openFlag) {
         return dim;
@@ -328,26 +328,10 @@ std::array<int, 3> H5FileManager::dimens() {
 
     // Проверяем, существует ли набор данных "regions" в файле
     if (!grid.exists("dimensions")) {
-        // Если набор данных не существует, возвращаем пустой вектор
         return dim;
     }
 
-    // Открываем набор данных "regions"
-    H5::DataSet dataset = grid.openDataSet("dimensions");
-
-    // Получаем пространство данных набора данных
-    H5::DataSpace dataspace = dataset.getSpace();
-
-    // Получаем размерность данных
-    hsize_t dims[1];
-    dataspace.getSimpleExtentDims(dims, nullptr);
-
-    // Изменяем размер вектора для хранения данных
-    //dim.resize(dims[0]);
-
-    // Читаем данные из набора данных в вектор
-    dataset.read(dim.data(), H5::PredType::NATIVE_INT);
-
+    EigenHDF5::load(grid,"dimensions",dim);
     return dim;
 }
 

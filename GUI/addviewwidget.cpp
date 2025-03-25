@@ -64,20 +64,21 @@ AddViewWidget::AddViewWidget(QWidget* parent) : QWidget(parent) {
 }
 
 AddViewWidget::~AddViewWidget() {
-    delete btn_create_spatial_view_part;
-    delete btn_create_spatial_view_4part;
-    delete btn_create_histogram_view;
-    delete btn_create_plot_view;
-    delete btn_create_table_view;
-    delete btn_create_well_profile_view;
-    delete btn_crate_user_view;
-    delete label_main;
-    delete spacer_top;
-    delete spacer_bottom;
-    delete spacer_left;
-    delete spacer_right;
-    delete buttonLayout;
-    delete mainLayout;
+    // тут возникала ошибка при завершении работы программы! Process finished with exit code -1073741819 (0xC0000005)
+    //delete btn_create_spatial_view_part;
+    //delete btn_create_spatial_view_4part;
+    //delete btn_create_histogram_view;
+    //delete btn_create_plot_view;
+    //delete btn_create_table_view;
+    //delete btn_create_well_profile_view;
+    //delete btn_crate_user_view;
+    //delete label_main;
+    //delete spacer_top;
+    //delete spacer_bottom;
+    //delete spacer_left;
+    //delete spacer_right;
+    //delete buttonLayout;
+    //delete mainLayout;
 }
 
 SpatialViewWidget* AddViewWidget::createSpatialViewWidget() {

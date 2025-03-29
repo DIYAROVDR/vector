@@ -9,7 +9,9 @@
 #include <QCheckBox>
 #include <QPainter>
 #include <QItemDelegate>
+#include <QLineEdit>
 
+#include "scientificspinbox.h"
 #include "delegatetype.h" // Подключаем DelegateType
 
 class MultiDelegate : public QStyledItemDelegate {

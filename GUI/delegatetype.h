@@ -9,7 +9,8 @@ enum class DelegateType {
     DateEditDelegate,     // Делегат для даты
     ComboBoxDelegate,
     IntSpinBoxDelegate,   // Делегат для спинбокса
-    DoubleBoxDelegate
+    DoubleBoxDelegate,
+    ScientificNotationDelegate
 };
 
 // Регистрируем перечисление в мета-системе Qt

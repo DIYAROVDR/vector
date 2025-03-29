@@ -20,36 +20,35 @@
 #include "../Core/pvtw.h"
 #include "../Core/pvcdo.h"
 #include "../Core/density.h"
+#include "../Core/physicalquantity.h"
 
 #include "treeview.h"
-#include "pvtmodel.h"
-#include "multidelegate.h"
+#include "tableview.h"
 #include "chartview.h"
+#include "pvttreemodel.h"
+#include "multidelegate.h"
 
 
 class PVTDataWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PVTDataWidget(QWidget* parent = nullptr);
-    void setRegionCount(int count);
+    explicit PVTDataWidget(QWidget* parent, PhysicalQuantity* physicalquantity);
     void openProject();
     ~PVTDataWidget();
 
 signals:
 
 private slots:
-
+    void onTreeViewItemClicked(const QModelIndex& index);
 
 private:
-    int regcount = 1;
-    int curreg = 0;
-    QFont mainfont;
-    QFont boldfont;
     QSplitter* splmain;
+    QSplitter* spldata;
     TreeView* treeView;
+    TableView* tableView;
     ChartView* charView;
-    PVTModel* pvtmodel;
+    PVTTreeModel* pvtTreeModel;
 };
 
 #endif // PVTDATAFORM_H

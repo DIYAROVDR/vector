@@ -25,7 +25,7 @@ public:
         VISCOSITY,             // Вязкость
         VISCOSITY_GRADIENT,    // Градиент вязкости
         VOLUMETRIC_EXPANSION,  // Объемное расширение
-        VOLUME,                 // Объем
+        VOLUME,                // Объем
         DIMENSIONLESS,
         UNDEFINED
     };

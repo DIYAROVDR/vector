@@ -9,14 +9,15 @@ ProjectDataWidget::ProjectDataWidget(QWidget* parent) :
                    physicalquantity(new PhysicalQuantity()),
                    genpropwidget(new GenPropWidget(this)),
                    griddatawidget(new GridDataWidget(this)),
-                   pvtdatawidget(new PVTDataWidget(this)),
+                   pvtdatawidget(new PVTDataWidget(this, physicalquantity)),
                    rockdatawidget(new RockDataWidget(this)),
                    initdatawidget(new InitDataWidget(this)),
                    fillcubewidget(new FillCubeWidget(this, physicalquantity)),
                    wellsdatawidget(new WellsDataWidget(this)),
                    h5filemanager(H5FileManager::instance()) {
 
-    mainFont.setPointSize(10);
+    mainFont = this->font();
+    boldFont = this->font();
     boldFont.setBold(true);
 
     initTreeWidget();
@@ -25,8 +26,8 @@ ProjectDataWidget::ProjectDataWidget(QWidget* parent) :
     spl->addWidget(stackedWidget);
     spl->setHandleWidth(0);
     spl->setOpaqueResize(false);
-    spl->setStretchFactor(0,1);
-    spl->setStretchFactor(1,2);
+    spl->setStretchFactor(0,2);
+    spl->setStretchFactor(1,3);
 
     stackedWidget->addWidget(genpropwidget);
     stackedWidget->addWidget(pvtdatawidget);

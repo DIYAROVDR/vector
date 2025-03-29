@@ -91,6 +91,24 @@ PhysicalQuantity::PhysicalQuantity() {
         {Quantity::EQLNUM,DataType::INT},
         {Quantity::CUBE,DataType::DOUBLE}
     };
+
+    pvtDataNames = {
+        {Quantity::REF_PRESSURE, "Опорное давление"},
+        {Quantity::VOL_EXPANSION, "Коэффициент объемного расширения"},
+        {Quantity::COMPRESSIBILITY, "Сжимаемость"},
+        {Quantity::VISCOSITY,"Вязкость"},
+        {Quantity::VISC_GRADIENT, "Градиент вязкости"},
+        {Quantity::DENSITY,"Плотность"}
+    };
+
+    pvtDataUnit = {
+        {Quantity::REF_PRESSURE, Types::PRESSURE},
+        {Quantity::VOL_EXPANSION, Types::VOLUMETRIC_EXPANSION},
+        {Quantity::COMPRESSIBILITY, Types::COMPRESSIBILITY},
+        {Quantity::VISCOSITY, Types::VISCOSITY},
+        {Quantity::VISC_GRADIENT, Types::VISCOSITY_GRADIENT},
+        {Quantity::DENSITY, Types::DENSITY}
+    };
 }
 
 
@@ -154,4 +172,12 @@ PhysicalQuantity::Quantity PhysicalQuantity::controlType(const std::string& name
         }
     }
     return Quantity::WELLBORE_PRESSURE;
+}
+
+std::map<PhysicalQuantity::Quantity, std::string> PhysicalQuantity::getPVTDataNames() {
+    std::map<Quantity, std::string> names;
+    for(const auto& pair : pvtDataNames) {
+        names[pair.first] = pair.second + " , " + unitvalue[outsys][pvtDataUnit[pair.first]];
+    }
+    return names;
 }

@@ -28,6 +28,10 @@ WellsDataWidget::WellsDataWidget(QWidget* parent):
 
     spl->addWidget(wellstreewidget);
     spl->addWidget(tabWidget);
+    //spl->setHandleWidth(0);
+    spl->setOpaqueResize(false);
+    spl->setStretchFactor(0,1);
+    spl->setStretchFactor(1,3);
 
     QSpacerItem* headerspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
     QHBoxLayout* buttonLayout = new QHBoxLayout();

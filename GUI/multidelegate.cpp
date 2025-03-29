@@ -33,6 +33,16 @@ QWidget* MultiDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
         editor->setDecimals(2);
         return editor;
     }
+
+    case DelegateType::ScientificNotationDelegate: {
+        ScientificSpinBox* editor = new ScientificSpinBox(parent);
+        editor->setMinimum(-1e100);  // Широкий диапазон
+        editor->setMaximum(1e100);
+
+        editor->setDecimals(6);      // Больше знаков после запятой
+        return editor;
+    }
+
     default:
         return QStyledItemDelegate::createEditor(parent, option, index);
     }
@@ -70,6 +80,13 @@ void MultiDelegate::setEditorData(QWidget* editor, const QModelIndex& index) con
         }
         break;
     }
+    case DelegateType::ScientificNotationDelegate: {
+        ScientificSpinBox* spinBox = qobject_cast<ScientificSpinBox*>(editor);
+        if (spinBox) {
+            spinBox->setValue(index.data(Qt::EditRole).toDouble());
+        }
+        break;
+    }
     default:
         QStyledItemDelegate::setEditorData(editor, index);
     }
@@ -104,6 +121,13 @@ void MultiDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, con
         QDoubleSpinBox* doubleSpinBox = qobject_cast<QDoubleSpinBox*>(editor);
         if (doubleSpinBox) {
             model->setData(index, doubleSpinBox->value(), Qt::EditRole);
+        }
+        break;
+    }
+    case DelegateType::ScientificNotationDelegate: {
+        ScientificSpinBox* spinBox = qobject_cast<ScientificSpinBox*>(editor);
+        if (spinBox) {
+            model->setData(index, spinBox->value(), Qt::EditRole);
         }
         break;
     }

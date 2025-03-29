@@ -47,7 +47,7 @@ bool CubesTreeModel::setData(const QModelIndex& index, const QVariant& value, in
 
     TreeNode* node = static_cast<TreeNode*>(index.internalPointer());
 
-    if(role == Qt::EditRole){
+    if(role == Qt::EditRole) {
         if (node->isEditable) {
             node->name = value.toString();
             emit dataChanged(index, index);
@@ -93,7 +93,7 @@ QVariant CubesTreeModel::data(const QModelIndex& index, int role) const {
             return QVariant();
         }
         else {
-            return node->isEmpty ? QIcon(":/images/empty_database.png") : QIcon(":/images/fill_database.png");
+            return node->isEmpty ? QIcon(":/images/empty_cube.png") : QIcon(":/images/fill_cube.png");
         }
 
     case Qt::ForegroundRole:

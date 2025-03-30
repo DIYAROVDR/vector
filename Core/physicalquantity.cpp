@@ -94,19 +94,19 @@ PhysicalQuantity::PhysicalQuantity() {
 
     pvtDataNames = {
         {Quantity::REF_PRESSURE, "Опорное давление"},
-        {Quantity::VOL_EXPANSION, "Коэффициент объемного расширения"},
+        {Quantity::VOLUMETRIC_EXPANSION, "Коэффициент объемного расширения"},
         {Quantity::COMPRESSIBILITY, "Сжимаемость"},
         {Quantity::VISCOSITY,"Вязкость"},
-        {Quantity::VISC_GRADIENT, "Градиент вязкости"},
+        {Quantity::VISCOSITY_GRADIENT, "Градиент вязкости"},
         {Quantity::DENSITY,"Плотность"}
     };
 
     pvtDataUnit = {
         {Quantity::REF_PRESSURE, Types::PRESSURE},
-        {Quantity::VOL_EXPANSION, Types::VOLUMETRIC_EXPANSION},
+        {Quantity::VOLUMETRIC_EXPANSION, Types::VOLUMETRIC_EXPANSION},
         {Quantity::COMPRESSIBILITY, Types::COMPRESSIBILITY},
         {Quantity::VISCOSITY, Types::VISCOSITY},
-        {Quantity::VISC_GRADIENT, Types::VISCOSITY_GRADIENT},
+        {Quantity::VISCOSITY_GRADIENT, Types::VISCOSITY_GRADIENT},
         {Quantity::DENSITY, Types::DENSITY}
     };
 }
@@ -152,13 +152,16 @@ std::string PhysicalQuantity::controlName(Quantity type) {
     return controlQuantityNames[type];
 }
 
+
 std::string PhysicalQuantity::getCubeNameVar(Quantity type) {
     return cubNameVar[type];
 }
 
+
 std::map<PhysicalQuantity::Quantity, std::string> PhysicalQuantity::getCubesNameVar() {
     return cubNameVar;
 }
+
 
 std::map<PhysicalQuantity::Quantity, std::string> PhysicalQuantity::getCubesNameStr() {
     return cubNameStr;
@@ -174,10 +177,11 @@ PhysicalQuantity::Quantity PhysicalQuantity::controlType(const std::string& name
     return Quantity::WELLBORE_PRESSURE;
 }
 
-std::map<PhysicalQuantity::Quantity, std::string> PhysicalQuantity::getPVTDataNames() {
-    std::map<Quantity, std::string> names;
+
+std::map<Unit::Types, std::string> PhysicalQuantity::getPVTDataNames() {
+    std::map<Types, std::string> names;
     for(const auto& pair : pvtDataNames) {
-        names[pair.first] = pair.second + " , " + unitvalue[outsys][pvtDataUnit[pair.first]];
+        names[pvtDataUnit[pair.first]] = pair.second + " , " + unitvalue[outsys][pvtDataUnit[pair.first]];
     }
     return names;
 }

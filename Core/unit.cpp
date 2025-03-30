@@ -1,7 +1,11 @@
 #include "unit.h"
 
 Unit::Unit() {
-    // Инициализация карты названий величин
+    /**
+     * Инициализация словаря соответствий:
+     * ключ - тип единицы измерения (Unit::Types)
+     * значение - название единицы измерения (std::string)
+     */
     unitname = {
         {Types::AREA, "Площадь"},
         {Types::COMPRESSIBILITY, "Сжимаемость"},
@@ -78,7 +82,7 @@ Unit::Unit() {
     // Коэффициенты перевода из SI в TS
     convcoeff[System::SI][System::TS] = {
         {Types::AREA, 1.0},
-        {Types::COMPRESSIBILITY, 1.0 / 101325.0}, // 1/Па -> 1/атм
+        {Types::COMPRESSIBILITY,  101325.0}, // 1/Па -> 1/атм
         {Types::DENSITY, 1.0},
         {Types::GAS_CONTENT, 1.0},
         {Types::OIL_CONTENT, 1.0},
@@ -101,7 +105,7 @@ Unit::Unit() {
     // Коэффициенты перевода из TS в SI
     convcoeff[System::TS][System::SI] = {
         {Types::AREA, 1.0},
-        {Types::COMPRESSIBILITY, 101325.0}, // 1/атм -> 1/Па
+        {Types::COMPRESSIBILITY, 1/101325.0}, // 1/атм -> 1/Па
         {Types::DENSITY, 1.0},
         {Types::GAS_CONTENT, 1.0},
         {Types::OIL_CONTENT, 1.0},
@@ -161,4 +165,14 @@ Eigen::ArrayXd Unit::convert(Eigen::ArrayXd& array, Types type) {
 
 Eigen::ArrayXd Unit::diconvert(Eigen::ArrayXd& array, Types type) {
     return array*convcoeff[insys][outsys][type];
+}
+
+
+double Unit::diconvert(double value, Unit::Types type) {
+    return value*convcoeff[outsys][insys][type];
+}
+
+
+double Unit::convert(double value, Unit::Types type) {
+    return value*convcoeff[insys][outsys][type];;
 }

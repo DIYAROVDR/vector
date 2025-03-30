@@ -218,7 +218,5 @@ int GridDataModel::columnCount(const QModelIndex& parent) const {
 
 void GridDataModel::applyData() {
     h5filemanager.setDimens(nx, ny, nz);
-    auto dim = h5filemanager.dimens();
-    std::cout << dim << std::endl;
     emit dimensChanged();
 }

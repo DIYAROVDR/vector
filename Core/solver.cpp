@@ -5,7 +5,7 @@ Solver::Solver(Grid* grid, Well* well) :
     well(well),
     h5filemanager(H5FileManager::instance()) {
     Pnew = grid->getP();  // Инициализируем давления из сетки
-    h5filemanager.saveCube(Pnew.array(),"PRESSURE");
+    h5filemanager.saveDynamicCube(Pnew.array(),"PRESSURE");
     Eigen::initParallel();
     int numThreads = std::thread::hardware_concurrency();  // Количество потоков, поддерживаемых машиной
     Eigen::setNbThreads(numThreads);
@@ -88,7 +88,7 @@ bool Solver::applyNewtonRaphson(double dt) {
             // Обновляем давления в сетке только после сходимости
 
             grid->addDt(dt);
-            h5filemanager.saveCube(Pnew.array(), "PRESSURE");
+            h5filemanager.saveDynamicCube(Pnew.array(), "PRESSURE");
 
             return true;
         }

@@ -9,6 +9,9 @@ PVTDataWidget::PVTDataWidget(QWidget* parent, PhysicalQuantity* physicalquantity
         charView(new ChartView(this)),
         pvtTreeModel(new PVTTreeModel(physicalquantity)) {
 
+    pvtTableModel = new PVTTableModel();
+    pvtTableModel->setTreeModel(pvtTreeModel);
+    tableView->setModel(pvtTableModel);
 
     treeView->setModel(pvtTreeModel);
     treeView->setItemDelegateForColumn(1, new MultiDelegate(this));
@@ -43,6 +46,8 @@ PVTDataWidget::~PVTDataWidget() {
 
 void PVTDataWidget::onTreeViewItemClicked(const QModelIndex& index) {
     pvtTreeModel->setData(index, true , Qt::ForegroundRole);
-    QVariant value = pvtTreeModel->data(index, Qt::UserRole + 3);
+    pvtTreeModel->setData(index, QVariant(), Qt::UserRole + 5);
+
+    //QVariant value = pvtTreeModel->data(index, Qt::UserRole + 3);
 }
 

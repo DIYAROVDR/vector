@@ -50,6 +50,9 @@ public:
 
     Eigen::ArrayXd convert(Eigen::ArrayXd& array, Types type);
     Eigen::ArrayXd diconvert(Eigen::ArrayXd& array, Types type);
+
+    double convert(double value, Types type);
+    double diconvert(double value, Types type);
 };
 
 #endif // UNIT_H

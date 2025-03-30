@@ -100,6 +100,7 @@ FillCubeWidget::FillCubeWidget(QWidget* parent, PhysicalQuantity* physicalquanti
         this,[&](const QString& name){layerfillcubemodel->setCurrentCube(name);}
     );
 
+    connect(btn_apply_table_data, &QPushButton::clicked, this, &FillCubeWidget::on_btn_apply_clicked);
 
     connect(btn_run_script, &QPushButton::clicked, this, &FillCubeWidget::on_btn_run_script_clicked);
     connect(btn_clear_code, &QPushButton::clicked, this, &FillCubeWidget::on_btn_clear_code_clicked);
@@ -189,4 +190,8 @@ void FillCubeWidget::on_btn_delete_script_clicked() {
     if (cmb_scripts_lists->count() == 0) {
         cmb_scripts_lists->setEnabled(false);
     }
+}
+
+void FillCubeWidget::on_btn_apply_clicked() {
+    layerfillcubemodel->saveCube();
 }

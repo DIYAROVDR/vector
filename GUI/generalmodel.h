@@ -32,11 +32,15 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
+    void saveData();
+    void loadData();
+
 private:
     struct TreeNode {
         QString name;
         QVector<TreeNode*> children;
         TreeNode* parent;
+        QVariant value;
 
         TreeNode(const QString& name, TreeNode* parent = nullptr): name(name), parent(parent) {}
         ~TreeNode() { qDeleteAll(children); }
@@ -53,8 +57,7 @@ private:
     H5FileManager& h5filemanager;
     PhysicalQuantity* physicalquantity;
 
-    QString startDate;
-    std::vector<bool> fluids;
+    QDateTime startDate;
     QMap<Grid::Initialization,QString> initName;
     QMap<Unit::System, QString> unitSystemName;
 };

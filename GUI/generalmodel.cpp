@@ -5,9 +5,6 @@ GeneralModel::GeneralModel(QObject* parent, PhysicalQuantity* physicalquantity) 
               physicalquantity(physicalquantity),
               rootNode(new TreeNode("Root")),
               h5filemanager(H5FileManager::instance()) {
-    fluids.resize(5);
-    fluids = {true,false,false,false,false};
-
     initName = {
         {Grid::Initialization::EQUILIBRIUM, "Равновестная"},
         {Grid::Initialization::NONEQUILIBRIUM, "Неравновестная"}
@@ -59,28 +56,27 @@ bool GeneralModel::setData(const QModelIndex& index, const QVariant& value, int 
 
     switch (role) {
     case Qt::EditRole:
-    case Qt::CheckStateRole:
         if (node == dateNode) {
-            startDate = value.toString();
-            h5filemanager.setStartDate(startDate.toStdString());
+            startDate = value.toDateTime();
         } else if (node == unitNode) {
             Unit::System val = unitSystemName.key(value.toString());
             h5filemanager.setUnitSystem(val);
             physicalquantity->setUnitSystem(val);
         } else if (node == initNode) {
-            h5filemanager.setTypeInitialization(initName.key(value.toString()));
-        } else if (node->parent == phaseNode) {
-            fluids[node->row()] = (role == Qt::EditRole) ? value.toBool() : (value.toInt() == Qt::Checked);
+            node->value = static_cast<int>(initName.key(value.toString())); // QVariant::fromValue(
         } else if (node->parent == regionNode) {
-            std::vector<int> regions = h5filemanager.regions();
-            regions[node->row()] = value.toInt();
-            h5filemanager.setRegions(regions);
+            node->parent->value= value.toInt();
         } else {
             return false;
         }
-        emit dataChanged(index, index, {role, (role == Qt::CheckStateRole) ? Qt::EditRole : Qt::CheckStateRole});
+        emit dataChanged(index, index);
         return true;
 
+    case Qt::CheckStateRole:
+        if (node->parent == phaseNode) {
+            node->value = value.toBool();
+        }
+        emit dataChanged(index, index);
     default:
         return false;
     }
@@ -99,18 +95,22 @@ QVariant GeneralModel::data(const QModelIndex& index, int role) const {
     case Qt::EditRole:
         if (index.column() == 0) {
             return node->name;
-        } else if (index.column() == 1) {
+        }
+        if (index.column() == 1) {
             if (node == dateNode) {
-                return QDateTime::fromString(QString::fromStdString(h5filemanager.startDate()), Qt::ISODate);
-            } else if (node == unitNode) {
+                return node->value.toDateTime();
+            }
+            if (node == unitNode) {
                 return unitSystemName[h5filemanager.unitSystem()];
-            } else if (node == initNode) {
+            }
+            if (node == initNode) {
                 return initName[h5filemanager.typeInitialization()];
-            } else if (node->parent == regionNode) {
-                std::vector<int> regions = h5filemanager.regions();
-                return regions[node->row()];
-            } else if (node->parent == phaseNode && role == Qt::EditRole) {
-                return fluids[node->row()];
+            }
+            if (node->parent == regionNode) {
+                return node->value.toInt();
+            }
+            if (node->parent == phaseNode && role == Qt::EditRole) {
+                return node->value.toBool();
             }
         }
         break;
@@ -124,9 +124,11 @@ QVariant GeneralModel::data(const QModelIndex& index, int role) const {
     case Qt::UserRole + 1:
         if (node == dateNode) {
             return QVariant::fromValue(DelegateType::DateEditDelegate);
-        } else if (node == unitNode || node == initNode) {
+        }
+        if (node == unitNode || node == initNode) {
             return QVariant::fromValue(DelegateType::ComboBoxDelegate);
-        } else if (node->parent == regionNode) {
+        }
+        if (node->parent == regionNode) {
             return QVariant::fromValue(DelegateType::IntSpinBoxDelegate);
         }
         break;
@@ -227,6 +229,44 @@ int GeneralModel::rowCount(const QModelIndex& parent) const {
 int GeneralModel::columnCount(const QModelIndex& parent) const {
     Q_UNUSED(parent);
     return 2;
+}
+
+
+void GeneralModel::saveData() {
+    QDate date = dateNode->value.toDate();
+    QTime time = dateNode->value.toTime();
+    std::array<int, 6> arrdate;
+    arrdate[0] = date.year();
+    arrdate[1] = date.month();
+    arrdate[2] = date.day();
+    arrdate[3] = time.hour();
+    arrdate[4] = time.minute();
+    arrdate[5] = time.second();
+
+    std::array<int,5> fluids;
+    size_t item = 0;
+    for (const auto& child : phaseNode->children) {
+        fluids[item] = child->value.toInt();
+        ++item;
+    }
+
+    std::array<int,5> regions;
+    item = 0;
+    for (const auto& child : regionNode->children) {
+        regions[item] = child->value.toInt();
+        ++item;
+    }
+
+    Grid::Initialization init = static_cast<Grid::Initialization>(initNode->value.toInt());
+
+    h5filemanager.setStartDate(arrdate);
+    h5filemanager.setFluids(fluids);
+    h5filemanager.setRegions(regions);
+    h5filemanager.setTypeInitialization(init);
+}
+
+void GeneralModel::loadData() {
+
 }
 
 

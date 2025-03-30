@@ -1,20 +1,110 @@
 #include "h5filemanager.h"
 
-
 H5FileManager& H5FileManager::instance() {
     static H5FileManager h5filemanager;
     return h5filemanager;
 }
+
 
 bool H5FileManager::isOpen() {
     return openFlag;
 }
 
 
-H5FileManager::H5FileManager(){}
+H5FileManager::H5FileManager() {
+    datatypes = {
+        {AttributeTypes::YEAR, "year"},
+        {AttributeTypes::MONTH, "month"},
+        {AttributeTypes::DAY, "day"},
+        {AttributeTypes::HOUR, "hour"},
+        {AttributeTypes::MINUTE, "minute"},
+        {AttributeTypes::SECOND, "second"},
+        {AttributeTypes::UNIT_SYSTEM_TYPE, "unit_system_type"},
+        {AttributeTypes::WATER, "water"},
+        {AttributeTypes::OIL, "oil"},
+        {AttributeTypes::GAS, "gas"},
+        {AttributeTypes::DISGAS, "disgas"},
+        {AttributeTypes::VAPOIL, "vapoil"},
+        {AttributeTypes::FIPNUM, "fipnum"},
+        {AttributeTypes::PVTNUM, "pvtnum"},
+        {AttributeTypes::SATNUM, "satnum"},
+        {AttributeTypes::ROCKNUM, "rocknum"},
+        {AttributeTypes::EQLNUM, "eqlnum"},
+        {AttributeTypes::NX, "nx"},
+        {AttributeTypes::NY, "ny"},
+        {AttributeTypes::NZ, "nz"},
+        {AttributeTypes::GRID_TYPE, "type_grid"},
+        {AttributeTypes::LAYERS_COUNT, "layers_count"},
+        {AttributeTypes::PINCH_VERT, "pinch_vert"},
+        {AttributeTypes::PINCH_HOR, "pinch_hor"}
+    };
+}
 
 
 H5FileManager::~H5FileManager() {}
+
+
+void H5FileManager::createAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group) {
+    H5::DataSpace attr_space(H5S_SCALAR);
+    for (const auto& pair : data) {
+        if (std::holds_alternative<int>(pair.second)) {
+            H5::Attribute attr = group.createAttribute(pair.first, H5::PredType::NATIVE_INT, attr_space);
+            attr.write(H5::PredType::NATIVE_INT, &std::get<int>(pair.second));
+        } else if (std::holds_alternative<double>(pair.second)) {
+            H5::Attribute attr = group.createAttribute(pair.first, H5::PredType::NATIVE_DOUBLE, attr_space);
+            attr.write(H5::PredType::NATIVE_DOUBLE, &std::get<double>(pair.second));
+        }
+    }
+}
+
+
+void H5FileManager::saveToAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group) {
+    H5::DataSpace attr_space(H5S_SCALAR);
+
+    for (const auto& pair : data) {
+        if (std::holds_alternative<int>(pair.second)) {
+            H5::Attribute attr = group.openAttribute(pair.first);
+            attr.write(H5::PredType::NATIVE_INT, &std::get<int>(pair.second));
+        } else if (std::holds_alternative<double>(pair.second)) {
+            H5::Attribute attr = group.openAttribute(pair.first);
+            attr.write(H5::PredType::NATIVE_DOUBLE, &std::get<double>(pair.second));
+        }
+    }
+
+}
+
+
+void H5FileManager::saveStringAttribute(H5::Group &group, const std::string &name, const std::string &value) {
+    // Общий метод для сохранения строкового атрибута
+    H5::DataSpace attr_space(H5S_SCALAR);
+    H5::StrType str_type(H5::PredType::C_S1, value.size());
+    if (group.attrExists(name)) {
+        group.removeAttr(name);
+    }
+    H5::Attribute attr = group.createAttribute(name, str_type, attr_space);
+    attr.write(str_type, value);
+}
+
+std::string H5FileManager::readStringAttribute(H5::Group &group, const std::string &name) {
+    // Общий метод для чтения строкового атрибута
+    if (!openFlag || !group.attrExists(name)) {
+        return "";
+    }
+    H5::Attribute attr = group.openAttribute(name);
+    H5::DataType dtype = attr.getDataType();
+    size_t size = dtype.getSize();
+    std::string value(size, '\0');
+    attr.read(dtype, &value[0]);
+    value.resize(strlen(value.c_str()));
+    return value;
+}
+
+H5::Group H5FileManager::getWellGroup(const std::string& name) {
+    if (!wells.exists(name)) {
+        return wells.createGroup(name);
+    }
+    return wells.openGroup(name);
+}
 
 
 void H5FileManager::openFile(const std::string& path) {
@@ -23,125 +113,137 @@ void H5FileManager::openFile(const std::string& path) {
         file = H5::H5File(currentPath, H5F_ACC_RDWR);
     } else {
         file = H5::H5File(currentPath, H5F_ACC_TRUNC);
-        model = file.createGroup("/model");
-        grid = file.createGroup("/model/grid");
+        general = file.createGroup("/general");
+        grid = file.createGroup("/grid");
+        pvt = file.createGroup("/pvt");
+        rock = file.createGroup("/rock");
         static_cube = file.createGroup("/static_cube");
         dynamic_cube = file.createGroup("/dynamic_cube");
         wells = file.createGroup("/wells");
 
-        int initial_step = 0;
         H5::DataSpace attr_space(H5S_SCALAR);
+
+        int initial_step = 0;
         H5::Attribute step_attr = dynamic_cube.createAttribute("current_step", H5::PredType::NATIVE_INT, attr_space);
         step_attr.write(H5::PredType::NATIVE_INT, &initial_step);
+
+        datageneral = {
+            {"year", 2001},
+            {"month", 6},
+            {"day", 10},
+            {"hour", 0},
+            {"minute", 0},
+            {"second", 0},
+            {"unit_system_type", static_cast<int>(Unit::System::TS)},
+            {"water", 1},
+            {"oil", 0},
+            {"gas", 0},
+            {"disgas", 0},
+            {"vapoil", 1},
+            {"fipnum",1},
+            {"pvtnum",1},
+            {"satnum",1},
+            {"rocknum", 1},
+            {"eqlnum", 1}
+        };
+
+        createAttribute(datageneral, general);
+
+        datagrid = {
+            {"nx",1},
+            {"ny",1},
+            {"nz",1},
+            {"type_grid", static_cast<int>(Grid::Type::BLOCKCENTERED)},
+            {"layers_count", 1},
+            {"pinch_vert", 0.0},
+            {"pinch_hor", 0.0}
+        };
+
+        createAttribute(datagrid, grid);
     }
     openFlag = true;
 }
 
 
 void H5FileManager::setDimens(int nx, int ny, int nz) {
-    this->nx = nx;
-    this->ny = ny;
-    this->nz = nz;
-
-    if (grid.exists("dimensions")) {
-        grid.unlink("dimensions");
-    }
-    EigenHDF5::save(grid, "dimensions", Eigen::Vector3i(nx, ny, nz));
-}
-
-
-void H5FileManager::saveStaticCube(const Eigen::VectorXd &cube, const std::string &name) {
-    if(static_cube.exists(name)) {
-        static_cube.unlink(name);
-    }
-    EigenHDF5::save(static_cube, name, cube);
-}
-
-
-void H5FileManager::setStartDate(const std::string& date) {
     H5::DataSpace attr_space(H5S_SCALAR);
-    H5::StrType str_type(H5::PredType::C_S1, date.size());
 
-    // Если атрибут уже существует, удаляем его
-    if (model.attrExists("start_date")) {
-        model.removeAttr("start_date");
+    H5::Attribute nx_attr = grid.openAttribute("nx");
+    nx_attr.write(H5::PredType::NATIVE_INT, &nx);
+
+    H5::Attribute ny_attr = grid.openAttribute("ny");
+    ny_attr.write(H5::PredType::NATIVE_INT, &ny);
+
+    H5::Attribute nz_attr = grid.openAttribute("nz");
+    nz_attr.write(H5::PredType::NATIVE_INT, &nz);
+}
+
+
+void H5FileManager::saveStaticCube(const Eigen::ArrayXd& cube, const std::string& name) {
+    saveDataWithCheck(static_cube, name, cube);
+}
+
+
+void H5FileManager::setStartDate(const std::array<int,6>& date) {
+    size_t item = 0;
+    for (const auto& pair : datatypes) {
+        if (pair.first > AttributeTypes::DATES && pair.first < AttributeTypes::UNIT) {
+            datageneral[pair.second] = date[item];
+            ++item;
+        }
     }
-
-    // Создаем новый атрибут
-    H5::Attribute date_attr = model.createAttribute("start_date", str_type, attr_space);
-    date_attr.write(str_type, date);
+    saveToAttribute(datageneral,general);
 }
 
 
 void H5FileManager::setUnitSystem(Unit::System system) {
-    H5::DataSpace attr_space(H5S_SCALAR);
-    int system_value = static_cast<int>(system);
-
-    if(model.attrExists("unit_system")){
-         model.removeAttr("unit_system");
-    }
-
-    H5::Attribute system_attr = model.createAttribute("unit_system", H5::PredType::NATIVE_INT, attr_space);
-    system_attr.write(H5::PredType::NATIVE_INT, &system_value);
-}
-
-
-void H5FileManager::setFluids(const std::vector<bool>& fluids) {
-    // Создаем пространство данных для массива
-    hsize_t dims[1] = {fluids.size()};
-    H5::DataSpace dataspace(1, dims);
-
-    // Преобразуем enum в массив целых чисел
-    std::vector<int> fluid_values;
-    for (const auto& fluid : fluids) {
-        fluid_values.push_back(static_cast<int>(fluid));
-    }
-
-    // Создаем набор данных для хранения флюидов
-    H5::DataSet dataset = model.createDataSet("fluids", H5::PredType::NATIVE_INT, dataspace);
-    dataset.write(fluid_values.data(), H5::PredType::NATIVE_INT);
+    saveScalarAttribute(general, "unit_system", static_cast<int>(system));
 }
 
 
 void H5FileManager::setTypeInitialization(Grid::Initialization type) {
-    H5::DataSpace attr_space(H5S_SCALAR); // Скалярное пространство данных
-    int type_value = static_cast<int>(type); // Преобразуем enum в int
-
-    if(model.attrExists("type_initialization")){
-        model.removeAttr("type_initialization");
-    }
-
-    H5::Attribute system_attr = model.createAttribute("type_initialization", H5::PredType::NATIVE_INT, attr_space);
-    system_attr.write(H5::PredType::NATIVE_INT,&type_value);
+    saveScalarAttribute(general, "type_initialization", static_cast<int>(type));
 }
 
 
-void H5FileManager::setRegions(const std::vector<int>& regions) {
-    hsize_t dims[1] = {regions.size()};
-    H5::DataSpace dataspace(1, dims);
-
-    if (model.exists("regions")) {
-        model.unlink("regions");
+void H5FileManager::setFluids(const std::array<int,5>& fluids) {
+    size_t item = 0;
+    for (const auto& pair : datatypes) {
+        if (pair.first >= AttributeTypes::WATER && pair.first <= AttributeTypes::VAPOIL) {
+            datageneral[pair.second] = fluids[item];
+            ++item;
+        }
     }
-
-    H5::DataSet dataset = model.createDataSet("regions", H5::PredType::NATIVE_INT, dataspace);
-    dataset.write(regions.data(), H5::PredType::NATIVE_INT);
+    saveToAttribute(datageneral,general);
 }
+
+
+void H5FileManager::setRegions(const std::array<int,5>& reg) {
+    size_t item = 0;
+    for (const auto& pair : datatypes) {
+        if (pair.first >= AttributeTypes::FIPNUM && pair.first <= AttributeTypes::EQLNUM) {
+            datageneral[pair.second] = reg[item];
+            ++item;
+        }
+    }
+    saveToAttribute(datageneral,general);
+}
+
 
 void H5FileManager::setTypeGrid(Grid::Type type) {
-    H5::DataSpace attr_space(H5S_SCALAR); // Скалярное пространство данных
-    int type_value = static_cast<int>(type); // Преобразуем enum в int
+    H5::DataSpace attr_space(H5S_SCALAR);
+    int type_value = static_cast<int>(type);
 
-    if(model.attrExists("type_grid")){
-        model.removeAttr("type_grid");
+    if(general.attrExists("type_grid")){
+        general.removeAttr("type_grid");
     }
 
-    H5::Attribute system_attr = model.createAttribute("type_grid", H5::PredType::NATIVE_INT, attr_space);
+    H5::Attribute system_attr = general.createAttribute("type_grid", H5::PredType::NATIVE_INT, attr_space);
     system_attr.write(H5::PredType::NATIVE_INT,&type_value);
 }
 
 
-void H5FileManager::saveCube(const Eigen::ArrayXd& cube, const std::string& name) {
+void H5FileManager::saveDynamicCube(const Eigen::ArrayXd& cube, const std::string& name) {
     // Получаем текущий шаг из атрибута current_step
     int current_step = 0;
     H5::Attribute step_attr = dynamic_cube.openAttribute("current_step");
@@ -155,9 +257,7 @@ void H5FileManager::saveCube(const Eigen::ArrayXd& cube, const std::string& name
         cube_group = dynamic_cube.openGroup(name);
     }
 
-    // Создаём имя для нового массива с текущим шагом
     std::string array_name = name + "_" + std::to_string(current_step);
-    std::cout<<array_name<<std::endl;
 
     // Сохраняем массив в подгруппу
     EigenHDF5::save(cube_group, array_name, cube);
@@ -167,7 +267,8 @@ void H5FileManager::saveCube(const Eigen::ArrayXd& cube, const std::string& name
     step_attr.write(H5::PredType::NATIVE_INT, &current_step);
 }
 
-Eigen::ArrayXd H5FileManager::getCube(const std::string &name, int step) {
+
+Eigen::ArrayXd H5FileManager::getDynamicCube(const std::string &name, int step) {
     // Формируем полное имя массива с учётом шага
     std::string array_name = name + "_" + std::to_string(step);
 
@@ -190,132 +291,47 @@ void H5FileManager::setNodes(const Eigen::Matrix<double, Eigen::Dynamic, 3>& nod
 }
 
 
-void H5FileManager::setCoord(const Eigen::Matrix<double, Eigen::Dynamic, 6> &coord) {
+void H5FileManager::setCoord(const Eigen::Matrix<double, Eigen::Dynamic, 6>& coord) {
     EigenHDF5::save(grid,"coord",coord);
 }
 
 
-void H5FileManager::setZcorn(const Eigen::Matrix<double, Eigen::Dynamic, 6> &zcorn) {
+void H5FileManager::setZcorn(const Eigen::Matrix<double, Eigen::Dynamic, 6>& zcorn) {
     EigenHDF5::save(grid,"zcorn",zcorn);
 }
 
 
-void H5FileManager::setHexahedronVertexOrder(const Eigen::VectorXi &hexahedrons) {
-    if(static_cube.exists("hexahedrons")) {
-        static_cube.unlink("hexahedrons");
-    }
-    EigenHDF5::save(grid, "hexahedrons", hexahedrons);
+void H5FileManager::setHexahedronVertexOrder(const Eigen::VectorXi& hexahedrons) {
+    saveDataWithCheck(grid, "hexahedrons", hexahedrons);
 }
 
 
 std::string H5FileManager::startDate() {
-    if (!openFlag) {
-        return std::string();
-    }
-
-    if (!model.attrExists("start_date")) {
-        return std::string();
-    }
-
-    H5::Attribute date_attr = model.openAttribute("start_date");
-    H5::DataType dtype = date_attr.getDataType();
-    H5::DataSpace dspace = date_attr.getSpace();
-
-    size_t size = dtype.getSize();
-    std::string date(size, '\0');
-    date_attr.read(dtype, &date[0]);
-    date.resize(strlen(date.c_str()));
-
-    return date;
+    return readStringAttribute(general, "start_date");
 }
 
 
 Unit::System H5FileManager::unitSystem() {
-    if (!openFlag) {
-        return Unit::System::TS;
-    }
-
-
-    if (!model.attrExists("unit_system")) {
-        return Unit::System::TS;
-    }
-
-    H5::Attribute system_attr = model.openAttribute("unit_system");
-
-    int system_value;
-    system_attr.read(H5::PredType::NATIVE_INT, &system_value);
-
-    return static_cast<Unit::System>(system_value);
+    return static_cast<Unit::System>(readScalarAttribute(general, "unit_system", static_cast<int>(Unit::System::TS)));
 }
 
 
 Grid::Initialization H5FileManager::typeInitialization() {
-    if (!openFlag) {
-        return Grid::Initialization::EQUILIBRIUM;
-    }
-
-
-    if (!model.attrExists("type_initialization")) {
-        return Grid::Initialization::EQUILIBRIUM;
-    }
-
-    H5::Attribute system_attr = model.openAttribute("type_initialization");
-
-    int system_value;
-    system_attr.read(H5::PredType::NATIVE_INT, &system_value);
-
-    return static_cast<Grid::Initialization>(system_value);
+    auto defval = static_cast<int>(Grid::Initialization::EQUILIBRIUM);
+    return static_cast<Grid::Initialization>(readScalarAttribute(general, "type_initialization", defval));
 }
+
 
 Grid::Type H5FileManager::typeGrid() {
-    if (!openFlag) {
-        return Grid::Type::BLOCKCENTERED;
-    }
-
-
-    if (!model.attrExists("type_grid")) {
-        return Grid::Type::BLOCKCENTERED;
-    }
-
-    H5::Attribute system_attr = model.openAttribute("type_grid");
-
-    int system_value;
-    system_attr.read(H5::PredType::NATIVE_INT, &system_value);
-
-    return static_cast<Grid::Type>(system_value);
+    auto defval = static_cast<int>(Grid::Type::BLOCKCENTERED);
+    return static_cast<Grid::Type>(readScalarAttribute(general, "type_grid", defval));
 }
 
 
-std::vector<int> H5FileManager::regions() {
-    std::vector<int> regions(5,1);
+Eigen::Array<int, 5, 1> H5FileManager::regions() {
+    Eigen::Array<int, 5, 1> reg;
 
-    if (!openFlag) {
-        return regions;
-    }
-
-    // Проверяем, существует ли набор данных "regions" в файле
-    if (!model.exists("regions")) {
-        // Если набор данных не существует, возвращаем пустой вектор
-        return regions;
-    }
-
-    // Открываем набор данных "regions"
-    H5::DataSet dataset = model.openDataSet("regions");
-
-    // Получаем пространство данных набора данных
-    H5::DataSpace dataspace = dataset.getSpace();
-
-    // Получаем размерность данных
-    hsize_t dims[1];
-    dataspace.getSimpleExtentDims(dims, nullptr);
-
-    // Изменяем размер вектора для хранения данных
-    regions.resize(dims[0]);
-
-    // Читаем данные из набора данных в вектор
-    dataset.read(regions.data(), H5::PredType::NATIVE_INT);
-
-    return regions;
+    return reg;
 }
 
 
@@ -326,166 +342,60 @@ Eigen::Array3i H5FileManager::dimens() {
         return dim;
     }
 
-    // Проверяем, существует ли набор данных "regions" в файле
-    if (!grid.exists("dimensions")) {
-        return dim;
-    }
+    H5::Attribute nx_attr = grid.openAttribute("nx");
+    nx_attr.read(H5::PredType::NATIVE_INT, &dim[0]);
 
-    EigenHDF5::load(grid,"dimensions",dim);
+    H5::Attribute ny_attr = grid.openAttribute("ny");
+    ny_attr.read(H5::PredType::NATIVE_INT, &dim[1]);
+
+    H5::Attribute nz_attr = grid.openAttribute("nz");
+    nz_attr.read(H5::PredType::NATIVE_INT, &dim[2]);
+
     return dim;
 }
 
 
 Eigen::Matrix<double, Eigen::Dynamic, 3> H5FileManager::loadControls(const std::string& name) {
-    Eigen::Matrix<double, Eigen::Dynamic, 3> controls;
-
-    if (wells.exists(name)) {
-        H5::Group wellGroup = wells.openGroup(name);
-        if (wellGroup.exists("controls")) {
-            EigenHDF5::load(wellGroup, "controls", controls);
-        }
-    }
-
-    return controls;
+    return loadWellData<double, 3>(name, "controls");
 }
 
 
 void H5FileManager::saveControls(const std::string& name, const Eigen::Matrix<double, Eigen::Dynamic, 3>& controls) {
-    H5::Group wellGroup;
-    if (!wells.exists(name)) {
-        wellGroup = wells.createGroup(name);
-    } else {
-        wellGroup = wells.openGroup(name);
-    }
-
-    if (wellGroup.exists("controls")) {
-        wellGroup.unlink("controls");
-    }
-
-    EigenHDF5::save(wellGroup, "controls", controls);
+    H5::Group wellGroup = getWellGroup(name);
+    saveDataWithCheck(wellGroup, "controls", controls);
 }
 
 
-Eigen::Matrix<double, Eigen::Dynamic, 7> H5FileManager::loadPerforation(const std::string &name) {
-    Eigen::Matrix<double, Eigen::Dynamic, 7> perforation;
-
-    if (wells.exists(name)) {
-        H5::Group wellGroup = wells.openGroup(name);
-        if (wellGroup.exists("perforation")) {
-            EigenHDF5::load(wellGroup, "perforation", perforation);
-        }
-    }
-
-    return perforation;
+Eigen::Matrix<double, Eigen::Dynamic, 7> H5FileManager::loadPerforation(const std::string& name) {
+    return loadWellData<double, 7>(name, "perforation");
 }
 
 
 void H5FileManager::savePerforation(const std::string &name, const Eigen::Matrix<double, Eigen::Dynamic, 7>& perforation) {
-    H5::Group wellGroup;
-    if (!wells.exists(name)) {
-        wellGroup = wells.createGroup(name);
-    } else {
-        wellGroup = wells.openGroup(name);
-    }
-
-    if (wellGroup.exists("perforation")) {
-        wellGroup.unlink("perforation");
-    }
-
-    EigenHDF5::save(wellGroup, "perforation", perforation);
+    H5::Group wellGroup = getWellGroup(name);
+    saveDataWithCheck(wellGroup, "perforation", perforation);
 }
 
 
 Eigen::Matrix<double, Eigen::Dynamic, 4> H5FileManager::loadWelltrack(const std::string &name) {
-    Eigen::Matrix<double, Eigen::Dynamic, 4> welltrack;
-    if (wells.exists(name)) {
-        H5::Group wellGroup = wells.openGroup(name);
-        if (wellGroup.exists("welltrack")) {
-            EigenHDF5::load(wellGroup, "welltrack", welltrack);
-        }
-    }
-
-    return welltrack;
+    return loadWellData<double, 4>(name, "welltrack");
 }
 
 
-void H5FileManager::saveWellTrack(const std::string &name, const Eigen::Matrix<double, Eigen::Dynamic, 4> &welltrack) {
-    H5::Group wellGroup;
-    if (!wells.exists(name)) {
-        wellGroup = wells.createGroup(name);
-    } else {
-        wellGroup = wells.openGroup(name);
-    }
-
-    if (wellGroup.exists("welltrack")) {
-        wellGroup.unlink("welltrack");
-    }
-    EigenHDF5::save(wellGroup, "welltrack", welltrack);
+void H5FileManager::saveWellTrack(const std::string& name, const Eigen::Matrix<double, Eigen::Dynamic, 4>& welltrack) {
+    H5::Group wellGroup = getWellGroup(name);
+    saveDataWithCheck(wellGroup, "welltrack", welltrack);
 }
 
 
-Eigen::VectorXd H5FileManager::getStaticCube(const std::string &name) {
-    Eigen::VectorXd cube;
+Eigen::ArrayXd H5FileManager::getStaticCube(const std::string &name) {
+    Eigen::ArrayXd cube;
     EigenHDF5::load(static_cube,name,cube);
     return cube;
 }
 
 
-vtkSmartPointer<vtkDoubleArray> H5FileManager::loadScalar(size_t step) {
-    auto scalarData = getCube("PRESSURE",step);
-    vtkSmartPointer<vtkDoubleArray> vtkScalar = vtkSmartPointer<vtkDoubleArray>::New();
 
-    for (size_t i = 0; i < scalarData.size(); ++i) {
-        vtkScalar->InsertNextValue(scalarData[i]);
-    }
-
-    return vtkScalar;
-}
-
-
-vtkSmartPointer<vtkStructuredGrid> H5FileManager::loadGrid() {
-    vtkSmartPointer<vtkStructuredGrid> vtkgrid = vtkSmartPointer<vtkStructuredGrid>::New();
-    vtkSmartPointer<vtkPoints> vtkpoints = vtkSmartPointer<vtkPoints>::New();
-    vtkSmartPointer<vtkDoubleArray> vtkarray = vtkSmartPointer<vtkDoubleArray>::New();
-
-    vtkgrid->SetDimensions(nx + 1, ny + 1, nz + 1);
-    vtkarray->SetNumberOfComponents(3);
-    vtkarray->SetNumberOfTuples((nx + 1)*(ny + 1)*(nz + 1));
-
-    grid.openDataSet("nodes").read(vtkarray->GetPointer(0), H5::PredType::NATIVE_DOUBLE);
-
-    vtkpoints->SetData(vtkarray);
-    vtkgrid->SetPoints(vtkpoints);
-
-    return vtkgrid;
-}
-
-
-vtkSmartPointer<vtkUnstructuredGrid> H5FileManager::loadGridCP() {
-    vtkSmartPointer<vtkUnstructuredGrid> vtkgrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
-    vtkSmartPointer<vtkPoints> vtkpoints = vtkSmartPointer<vtkPoints>::New();
-    vtkSmartPointer<vtkDoubleArray> vtkarray = vtkSmartPointer<vtkDoubleArray>::New();
-    vtkSmartPointer<vtkCellArray> vtkcells = vtkSmartPointer<vtkCellArray>::New();
-    vtkSmartPointer<vtkIdTypeArray> cellData = vtkSmartPointer<vtkIdTypeArray>::New();
-
-    const size_t zcorn_size = 8 * nx * ny * nz;
-
-    vtkarray->SetNumberOfComponents(3);
-    cellData->SetNumberOfComponents(1);
-    vtkarray->SetNumberOfTuples(zcorn_size);
-    cellData->SetNumberOfTuples(zcorn_size);
-
-    grid.openDataSet("nodes").read(vtkarray->GetPointer(0), H5::PredType::NATIVE_DOUBLE);
-    grid.openDataSet("hexahedrons").read(cellData->GetPointer(0), H5::PredType::NATIVE_LLONG);
-
-    vtkpoints->SetData(vtkarray);
-    vtkcells->SetData(8,cellData);
-
-    vtkgrid->SetPoints(vtkpoints);
-    vtkgrid->SetCells(VTK_HEXAHEDRON, vtkcells);
-
-    return vtkgrid;
-}
 
 
 

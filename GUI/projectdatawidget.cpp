@@ -173,10 +173,6 @@ QWidget* ProjectDataWidget::createHeaderWidget() {
 
     QHBoxLayout* layout = new QHBoxLayout(headerWidget);
 
-    QLineEdit* searchLineEdit = new QLineEdit(headerWidget);
-    searchLineEdit->setPlaceholderText("Быстрый поиск");
-    searchLineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
     QPushButton* btn_open = new QPushButton(QIcon(":/images/folder_file.png"), "", headerWidget);
     QPushButton* btn_update = new QPushButton(QIcon(":/images/update.png"), "", headerWidget);
     QPushButton* btn_init = new QPushButton(QIcon(":/images/initialization.png"), "", headerWidget);
@@ -189,12 +185,10 @@ QWidget* ProjectDataWidget::createHeaderWidget() {
     btn_update->setIconSize(QSize(20,20));
     btn_init->setIconSize(QSize(20,20));
 
-
     connect(btn_open, &QPushButton::clicked, this, &ProjectDataWidget::openProjectDir);
     connect(btn_update,&QPushButton::clicked,this,&ProjectDataWidget::updateData);
     connect(btn_init,&QPushButton::clicked,this,&ProjectDataWidget::initialization);
 
-    layout->addWidget(searchLineEdit);
     layout->addWidget(btn_update);
     layout->addWidget(btn_init);
     layout->addWidget(btn_open);

@@ -42,6 +42,7 @@ private slots:
     void on_btn_clear_code_clicked();
     void on_btn_add_script_clicked();
     void on_btn_delete_script_clicked();
+    void on_btn_apply_clicked();
 
 private:
     QDoubleValidator* doubleValidator = nullptr;

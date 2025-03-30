@@ -12,7 +12,6 @@
 
 class PVTTreeModel : public QAbstractItemModel {
     Q_OBJECT
-
 public:
     explicit PVTTreeModel(PhysicalQuantity* physicalquantity, QObject* parent = nullptr);
     ~PVTTreeModel();
@@ -26,6 +25,12 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
+    QStringList tableHeaders();
+    QVector<QVector<double>> tableData();
+
+signals:
+    void pvtDataChanged(); // Новый сигнал
+    void currentPhaseChanged();
 private:
     QFont bold;
     struct TreeNode {
@@ -36,7 +41,12 @@ private:
         QVector<TreeNode*> children;
         TreeNode* parent;
 
-        TreeNode(const QString& name, TreeNode* parent = nullptr, double value = 0.0,Unit::Types type = Unit::Types::UNDEFINED, bool select = false):
+        TreeNode(
+                const QString& name,
+                TreeNode* parent = nullptr,
+                double value = 0.0,
+                Unit::Types type = Unit::Types::UNDEFINED,
+                bool select = false):
                 name(name),
                 parent(parent),
                 value(value),
@@ -60,9 +70,10 @@ private:
 
     TreeNode* rootNode;
     TreeNode* regionsNode;
-    TreeNode* firstRegionNode;
-    TreeNode* waterPropNode;
+    TreeNode* firstRegNode;
+    TreeNode* waterNode;
     TreeNode* lastSelectNode;
+
     QVector<PVTBase*> waterpvt;
 };
 

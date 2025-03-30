@@ -79,7 +79,7 @@ void MultiViewWidget::loadGrid() {
         SpatialViewWidget* wgt = qobject_cast<SpatialViewWidget*>(widget(tab));
         if(wgt) {
             H5FileManager& file = H5FileManager::instance();
-            wgt->createGrid(file.loadGrid(),file.loadScalar());
+            //wgt->createGrid(file.loadGrid(),file.loadScalar());
         }
     }
 }
@@ -90,7 +90,7 @@ void MultiViewWidget::updateGrid(size_t step) {
         SpatialViewWidget* wgt = qobject_cast<SpatialViewWidget*>(widget(tab));
         if(wgt) {
             H5FileManager& file = H5FileManager::instance();
-            wgt->setScalar(file.loadScalar(step));
+            //wgt->setScalar(file.loadScalar(step));
         }
     }
 }

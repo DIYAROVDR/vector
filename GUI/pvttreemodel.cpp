@@ -8,30 +8,32 @@ PVTTreeModel::PVTTreeModel(PhysicalQuantity* physicalquantity, QObject* parent):
     bold.setBold(true);
 
     regionsNode = new TreeNode("Регионы", rootNode);
-    firstRegionNode = new TreeNode("DV", regionsNode, 1, Unit::Types::UNDEFINED, true);
+    firstRegNode = new TreeNode("DV", regionsNode, 1, Unit::Types::UNDEFINED, true);
 
-    regionsNode->children.append(firstRegionNode);
+    regionsNode->children.append(firstRegNode);
 
-    waterPropNode = new TreeNode("Свойства воды", rootNode);
+    waterNode = new TreeNode("Свойства воды", rootNode);
 
-    std::vector<double> default_data = {200E+5, 1.0, 1E-9, 1E-3, 0.0, 1000};
+    std::vector<double> data = {200E+5, 1.0, 1E-9, 1E-3, 0.0, 1000};
 
     int count = 0;
     for(const auto& pair : physicalquantity->getPVTDataNames()) {
-        waterPropNode->children.append(new TreeNode(
+        waterNode->children.append(new TreeNode(
                 QString::fromStdString(pair.second),
-                waterPropNode,
-                default_data[count]
+                waterNode,
+                physicalquantity->diconvert(data[count], pair.first),
+                pair.first,
+                false
         ));
         ++count;
     }
 
     rootNode->children.append({
           regionsNode,
-          waterPropNode
+          waterNode
     });
 
-    lastSelectNode = firstRegionNode;
+    lastSelectNode = firstRegNode;
     waterpvt.resize(1);
     waterpvt[0] = new PVTW();
 }
@@ -99,42 +101,16 @@ QVariant PVTTreeModel::data(const QModelIndex& index, int role) const {
                 return node->value;
             }
         case Qt::EditRole:
-            if (node->parent != rootNode) {
+            if (node->parent == regionsNode) {
+                return node->value;
+            }
+            else if (node->parent == waterNode) {
                 return node->value;
             }
 
         case Qt::UserRole + 1:
-            if(node->parent == waterPropNode) {
+            if(node->parent == waterNode) {
                 return QVariant::fromValue(DelegateType::ScientificNotationDelegate);
-            }
-
-        case Qt::UserRole + 3:
-            if (node->parent == waterPropNode) {
-                std::vector<double> data(6);
-                for (size_t i = 0; i < 6; ++i) data[i] = waterPropNode->children[i]->value;
-                waterpvt[lastSelectNode->row()]->setData(data);
-
-                std::vector<double> muw = waterpvt[lastSelectNode->row()]->mutab();
-                std::vector<double> bw = waterpvt[lastSelectNode->row()]->btab();
-                std::vector<double> pw = waterpvt[lastSelectNode->row()]->ptab();
-
-                // Упаковываем вектора в QVariantList
-                QVariantList result;
-                result.reserve(3);
-
-                QVariantList muwList;
-                for (const auto& val : muw) muwList << val;
-                result << QVariant(muwList);
-
-                QVariantList bwList;
-                for (const auto& val : bw) bwList << val;
-                result << QVariant(bwList);
-
-                QVariantList pwList;
-                for (const auto& val : pw) pwList << val;
-                result << QVariant(pwList);
-
-                return result;
             }
 
         case Qt::ForegroundRole:
@@ -165,6 +141,7 @@ QVariant PVTTreeModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 }
 
+
 Qt::ItemFlags PVTTreeModel::flags(const QModelIndex &index) const {
     if (!index.isValid()) {
         return Qt::NoItemFlags;
@@ -174,13 +151,14 @@ Qt::ItemFlags PVTTreeModel::flags(const QModelIndex &index) const {
 
     if (index.column() == 1) {
         TreeNode* node = static_cast<TreeNode*>(index.internalPointer());
-        if (node->parent == waterPropNode) {
+        if (node->parent == waterNode) {
             flags |= Qt::ItemIsEditable;
         }
     }
 
     return flags;
 }
+
 
 bool PVTTreeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
     if (!index.isValid()) {
@@ -189,12 +167,13 @@ bool PVTTreeModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     TreeNode* node = static_cast<TreeNode*>(index.internalPointer());
 
-
-
     switch(role) {
         case Qt::EditRole :
-            if (node->parent == waterPropNode) {
+            if (node->parent == waterNode) {
                 node->value = value.toDouble();
+                emit pvtDataChanged(); // Оповещаем об изменении
+                emit dataChanged(index, index, {role});
+                return true;
             }
         case Qt::ForegroundRole :
             if (index.column() == 1) return false;
@@ -207,12 +186,48 @@ bool PVTTreeModel::setData(const QModelIndex &index, const QVariant &value, int 
 
                 node->select = value.toBool();
                 lastSelectNode = node;
-
+                emit pvtDataChanged(); // Оповещаем об изменении
                 emit dataChanged(index, index, {Qt::ForegroundRole});
                 return true;
+            }
+        case Qt::UserRole + 5:
+            if (node == waterNode) {
+                emit currentPhaseChanged();
             }
         default:
             return false;
     };
+}
+
+
+QStringList PVTTreeModel::tableHeaders() {
+    QStringList headers = {
+            "Давление",
+            "Вязкость",
+            "Коэффициент объемного расширения"
+    };
+
+    return headers;
+}
+
+
+QVector<QVector<double>> PVTTreeModel::tableData() {
+    std::vector<double> data(6);
+    //waterNode->children[i]->value;
+    //
+    for (size_t i = 0; i < 6; ++i) data[i] = physicalquantity->convert(waterNode->children[i]->value,waterNode->children[i]->type);
+    waterpvt[lastSelectNode->row()]->setData(data);
+
+    std::vector<double> muw = waterpvt[lastSelectNode->row()]->mutab();
+    std::vector<double> bw = waterpvt[lastSelectNode->row()]->btab();
+    std::vector<double> pw = waterpvt[lastSelectNode->row()]->ptab();
+
+    QVector<QVector<double>> result = {
+        QVector(pw.begin(), pw.end()),
+        QVector(muw.begin(), muw.end()),
+        QVector(bw.begin(), bw.end())
+    };
+
+    return result;
 }
 

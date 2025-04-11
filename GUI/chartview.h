@@ -4,36 +4,36 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
+#include <QMouseEvent>
+#include <QWheelEvent>
+#include <QtCharts/QAbstractSeries>
 
 QT_CHARTS_USE_NAMESPACE  // Используем пространство имен QtCharts
 
-class ChartView : public QChartView
-{
-Q_OBJECT
+#include <QtCharts/QChartView>
+#include <QtCharts/QChart>
 
+class ChartView : public QChartView {
+    Q_OBJECT
 public:
     explicit ChartView(QWidget *parent = nullptr);
+    explicit ChartView(QChart *chart, QWidget *parent = nullptr);
 
-    // Добавление серии данных
-    void addSeries(QAbstractSeries *series);
+    template<typename T, typename... Args>
+    T* createAndSetChart(Args&&... args);
 
-    // Установка заголовка графика
-    void setChartTitle(const QString &title);
+    void setChart(QChart *chart);
 
-    // Настройка осей
-    void setAxisX(const QString &title, double min, double max);
-    void setAxisY(const QString &title, double min, double max);
+    void updateChart(); // Обновление отображения
 
 protected:
-    // Переопределение событий (опционально)
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    QChart *m_chart;      // Основной график
-    QValueAxis *m_axisX;  // Ось X
-    QValueAxis *m_axisY;  // Ось Y
+    QPointF m_lastMousePos;
+    bool m_isDragging;
 };
 
 #endif // CHARTVIEW_H

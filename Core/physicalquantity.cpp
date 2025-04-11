@@ -94,18 +94,18 @@ PhysicalQuantity::PhysicalQuantity() {
 
     pvtDataNames = {
         {Quantity::REF_PRESSURE, "Опорное давление"},
-        {Quantity::VOLUMETRIC_EXPANSION, "Коэффициент объемного расширения"},
+        {Quantity::REF_VOLUMETRIC_EXPANSION, "Коэффициент объемного расширения"},
         {Quantity::COMPRESSIBILITY, "Сжимаемость"},
-        {Quantity::VISCOSITY,"Вязкость"},
+        {Quantity::REF_VISCOSITY,"Вязкость"},
         {Quantity::VISCOSITY_GRADIENT, "Градиент вязкости"},
         {Quantity::DENSITY,"Плотность"}
     };
 
     pvtDataUnit = {
         {Quantity::REF_PRESSURE, Types::PRESSURE},
-        {Quantity::VOLUMETRIC_EXPANSION, Types::VOLUMETRIC_EXPANSION},
+        {Quantity::REF_VOLUMETRIC_EXPANSION, Types::VOLUMETRIC_EXPANSION},
         {Quantity::COMPRESSIBILITY, Types::COMPRESSIBILITY},
-        {Quantity::VISCOSITY, Types::VISCOSITY},
+        {Quantity::REF_VISCOSITY, Types::VISCOSITY},
         {Quantity::VISCOSITY_GRADIENT, Types::VISCOSITY_GRADIENT},
         {Quantity::DENSITY, Types::DENSITY}
     };

@@ -1,7 +1,7 @@
 #include "pvttreemodel.h"
 
 PVTTreeModel::PVTTreeModel(PhysicalQuantity* physicalquantity, QObject* parent):
-        physicalquantity(physicalquantity),
+        quantity(physicalquantity),
         QAbstractItemModel(parent),
         rootNode(new TreeNode("PVT")) {
 
@@ -14,14 +14,14 @@ PVTTreeModel::PVTTreeModel(PhysicalQuantity* physicalquantity, QObject* parent):
 
     waterNode = new TreeNode("Свойства воды", rootNode);
 
-    std::vector<double> data = {200E+5, 1.0, 1E-9, 1E-3, 0.0, 1000};
+    std::vector<double> data = {1E-9, 1000.0,200E+5, 1E-3, 0.0, 1.0}; // SI
 
     int count = 0;
     for(const auto& pair : physicalquantity->getPVTDataNames()) {
         waterNode->children.append(new TreeNode(
                 QString::fromStdString(pair.second),
                 waterNode,
-                physicalquantity->diconvert(data[count], pair.first),
+                physicalquantity->diconvert(data[count], pair.first), // SI -> TS
                 pair.first,
                 false
         ));
@@ -91,21 +91,35 @@ QVariant PVTTreeModel::data(const QModelIndex& index, int role) const {
     }
 
     TreeNode* node = static_cast<TreeNode*>(index.internalPointer());
-
+    int row = lastSelectNode->row();
     switch (role) {
         case Qt::DisplayRole:
             if (index.column() == 0) {
                 return node->name;
             }
-            else if (node->parent != rootNode) {
+             if (node->parent != rootNode) {
                 return node->value;
             }
         case Qt::EditRole:
             if (node->parent == regionsNode) {
                 return node->value;
             }
-            else if (node->parent == waterNode) {
-                return node->value;
+            if (node->parent == waterNode) {
+                //return node->value;
+                switch (node->type) {
+                    case Unit::Types::PRESSURE:
+                        return quantity->diconvert( waterpvt[row]->getPwRef(), node->type);
+                    case Unit::Types::VOLUMETRIC_EXPANSION:
+                        return quantity->diconvert( waterpvt[row]->getBwRef(), node->type);
+                    case Unit::Types::COMPRESSIBILITY:
+                        return quantity->diconvert( waterpvt[row]->getCw(), node->type);
+                    case Unit::Types::VISCOSITY:
+                        return quantity->diconvert( waterpvt[row]->getMwRef(), node->type);
+                    case Unit::Types::VISCOSITY_GRADIENT:
+                        return quantity->diconvert( waterpvt[row]->getCvw(), node->type);
+                    case Unit::Types::DENSITY:
+                        return quantity->diconvert( waterpvt[row]->getRhoW(), node->type);
+                };
             }
 
         case Qt::UserRole + 1:
@@ -166,11 +180,37 @@ bool PVTTreeModel::setData(const QModelIndex &index, const QVariant &value, int 
     }
 
     TreeNode* node = static_cast<TreeNode*>(index.internalPointer());
+    int row = lastSelectNode->row();
 
     switch(role) {
         case Qt::EditRole :
             if (node->parent == waterNode) {
                 node->value = value.toDouble();
+
+                double convval = quantity->convert( node->value, node->type);
+
+                switch (node->type) {
+                    case Unit::Types::PRESSURE:
+                        waterpvt[row]->setPwRef(convval);
+                        break;
+                    case Unit::Types::VOLUMETRIC_EXPANSION:
+                        waterpvt[row]->setBwRef(convval);
+                        break;
+                    case Unit::Types::COMPRESSIBILITY:
+                        waterpvt[row]->setCw(convval);
+                        break;
+                    case Unit::Types::VISCOSITY:
+                        waterpvt[row]->setMwRef(convval);
+                        break;
+                    case Unit::Types::VISCOSITY_GRADIENT:
+                        waterpvt[row]->setCvw(convval);
+                        break;
+                    case Unit::Types::DENSITY:
+                        waterpvt[row]->setRhoW(convval);
+                        break;
+                };
+                waterpvt[row]->update();
+
                 emit pvtDataChanged(); // Оповещаем об изменении
                 emit dataChanged(index, index, {role});
                 return true;
@@ -212,15 +252,17 @@ QStringList PVTTreeModel::tableHeaders() {
 
 
 QVector<QVector<double>> PVTTreeModel::tableData() {
-    std::vector<double> data(6);
-    //waterNode->children[i]->value;
-    //
-    for (size_t i = 0; i < 6; ++i) data[i] = physicalquantity->convert(waterNode->children[i]->value,waterNode->children[i]->type);
-    waterpvt[lastSelectNode->row()]->setData(data);
+    int row = lastSelectNode->row();
 
-    std::vector<double> muw = waterpvt[lastSelectNode->row()]->mutab();
-    std::vector<double> bw = waterpvt[lastSelectNode->row()]->btab();
-    std::vector<double> pw = waterpvt[lastSelectNode->row()]->ptab();
+    Eigen::ArrayXd muwArray = waterpvt[row]->mutab();
+    Eigen::ArrayXd bwArray = waterpvt[row]->btab();
+    Eigen::ArrayXd pwArray = waterpvt[row]->ptab();
+
+    std::cout<< bwArray <<std::endl;
+
+    auto muw = quantity->diconvert(muwArray, PhysicalQuantity::Types::VISCOSITY);
+    auto bw = quantity->diconvert(bwArray, PhysicalQuantity::Types::VOLUMETRIC_EXPANSION);
+    auto pw = quantity->diconvert(pwArray, PhysicalQuantity::Types::PRESSURE);
 
     QVector<QVector<double>> result = {
         QVector(pw.begin(), pw.end()),

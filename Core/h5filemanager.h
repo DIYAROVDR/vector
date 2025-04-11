@@ -10,6 +10,8 @@
 #include "eigen3-hdf5.hpp"
 #include "physicalquantity.h"
 
+using DataMap = std::map<std::string, std::variant<int, double>>;
+
 class H5FileManager {
 public:
     void openFile(const std::string& path);
@@ -65,28 +67,24 @@ private:
     H5::Group wells;
 
     enum class AttributeTypes {
-        DATES,
+        GENERAL,
         YEAR,
         MONTH,
         DAY,
         HOUR,
         MINUTE,
         SECOND,
-        UNIT,
         UNIT_SYSTEM_TYPE,
-        FLUIDS,
         WATER,
         OIL,
         GAS,
         DISGAS,
         VAPOIL,
-        REGIONS,
         FIPNUM,
         PVTNUM,
         SATNUM,
         ROCKNUM,
         EQLNUM,
-        PVT,
         GRID,
         NX,
         NY,
@@ -98,14 +96,32 @@ private:
     };
 
     std::map<AttributeTypes, std::string> datatypes;
-    std::map<std::string, std::variant<int, double>> datageneral;
-    std::map<std::string, std::variant<int, double>> datagrid;
+    DataMap datageneral;
+    DataMap datagrid;
 
-    void createAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group);
-    void saveToAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group);
+    void createAttribute(const DataMap& data, H5::Group& group);
+    void saveToAttribute(const DataMap& data, H5::Group& group);
     void saveStringAttribute(H5::Group& group, const std::string& name, const std::string& value);
     H5::Group getWellGroup(const std::string& name);
     std::string readStringAttribute(H5::Group& group, const std::string& name);
+
+
+    template<typename Container>
+    void saveToMap(DataMap& data, AttributeTypes begin, AttributeTypes end, const Container& array) {
+        static_assert(
+            std::is_same_v<Container, std::array<typename Container::value_type, std::tuple_size<Container>::value>> ||
+            std::is_same_v<Container, std::vector<typename Container::value_type>>,
+            "Container must be either std::array or std::vector"
+        );
+
+        size_t index = 0;
+        for (const auto& pair : datatypes) {
+            if (pair.first >= begin && pair.first <= end) {
+                data[pair.second] = array[index];
+                ++index;
+            }
+        }
+    }
 
 
     // Общий метод для сохранения скалярного атрибута

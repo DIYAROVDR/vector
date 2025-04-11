@@ -27,6 +27,7 @@
 #include "chartview.h"
 #include "pvttreemodel.h"
 #include "pvttablemodel.h"
+#include "pvtchartmodel.h"
 #include "multidelegate.h"
 
 
@@ -51,6 +52,7 @@ private:
     ChartView* charView;
     PVTTreeModel* pvtTreeModel;
     PVTTableModel* pvtTableModel;
+    PVTChartModel* pvtChartModel;
 };
 
 #endif // PVTDATAFORM_H

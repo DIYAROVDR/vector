@@ -166,16 +166,15 @@ void H5FileManager::openFile(const std::string& path) {
 
 
 void H5FileManager::setDimens(int nx, int ny, int nz) {
-    H5::DataSpace attr_space(H5S_SCALAR);
-
-    H5::Attribute nx_attr = grid.openAttribute("nx");
-    nx_attr.write(H5::PredType::NATIVE_INT, &nx);
-
-    H5::Attribute ny_attr = grid.openAttribute("ny");
-    ny_attr.write(H5::PredType::NATIVE_INT, &ny);
-
-    H5::Attribute nz_attr = grid.openAttribute("nz");
-    nz_attr.write(H5::PredType::NATIVE_INT, &nz);
+    int dim[3] = {nx,ny,nz};
+    size_t item = 0;
+    for (const auto& pair : datatypes) {
+        if (pair.first >= AttributeTypes::NX && pair.first <= AttributeTypes::NZ) {
+            datageneral[pair.second] = dim[item];
+            ++item;
+        }
+    }
+    saveToAttribute(datageneral,general);
 }
 
 
@@ -187,7 +186,7 @@ void H5FileManager::saveStaticCube(const Eigen::ArrayXd& cube, const std::string
 void H5FileManager::setStartDate(const std::array<int,6>& date) {
     size_t item = 0;
     for (const auto& pair : datatypes) {
-        if (pair.first > AttributeTypes::DATES && pair.first < AttributeTypes::UNIT) {
+        if (pair.first >= AttributeTypes::YEAR && pair.first <= AttributeTypes::SECOND) {
             datageneral[pair.second] = date[item];
             ++item;
         }
@@ -234,7 +233,7 @@ void H5FileManager::setTypeGrid(Grid::Type type) {
     H5::DataSpace attr_space(H5S_SCALAR);
     int type_value = static_cast<int>(type);
 
-    if(general.attrExists("type_grid")){
+    if(general.attrExists("type_grid")) {
         general.removeAttr("type_grid");
     }
 

@@ -36,15 +36,29 @@ public:
     void loadData();
 
 private:
+    QFont bold;
     struct TreeNode {
         QString name;
         QVector<TreeNode*> children;
         TreeNode* parent;
         QVariant value;
 
-        TreeNode(const QString& name, TreeNode* parent = nullptr): name(name), parent(parent) {}
-        ~TreeNode() { qDeleteAll(children); }
-        int row() const;
+        TreeNode(const QString& name, const QVariant& value = QVariant(), TreeNode* parent = nullptr):
+                name(name),
+                value(value),
+                parent(parent) {
+        }
+
+        ~TreeNode() {
+            qDeleteAll(children);
+        }
+
+        int row() const {
+            if (parent) {
+                return parent->children.indexOf(const_cast<TreeNode*>(this));
+            }
+            return 0;
+        }
     };
 
     TreeNode* rootNode;
@@ -58,8 +72,8 @@ private:
     PhysicalQuantity* physicalquantity;
 
     QDateTime startDate;
-    QMap<Grid::Initialization,QString> initName;
-    QMap<Unit::System, QString> unitSystemName;
+    QMap<Grid::Initialization,QString> init;
+    QMap<Unit::System, QString> unit;
 };
 
 #endif // GENERALMODEL_H

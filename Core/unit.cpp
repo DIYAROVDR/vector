@@ -95,7 +95,7 @@ Unit::Unit() {
         {Types::SATURATION, 1.0},
         {Types::TEMPERATURE, -273.15}, // К -> °C
         {Types::VISCOSITY, 1000.0}, // Па·с -> сП
-        {Types::VISCOSITY_GRADIENT, 1.0 / 101325.0}, // 1/Па -> 1/атм
+        {Types::VISCOSITY_GRADIENT,  101325.0}, // 1/Па -> 1/атм
         {Types::VOLUMETRIC_EXPANSION, 1.0},
         {Types::VOLUME, 1.0},
         {Types::DIMENSIONLESS, 1.0},
@@ -118,7 +118,7 @@ Unit::Unit() {
         {Types::SATURATION, 1.0},
         {Types::TEMPERATURE, 273.15}, // °C -> K
         {Types::VISCOSITY, 0.001}, // сП -> Па·с
-        {Types::VISCOSITY_GRADIENT, 101325.0}, // 1/атм -> 1/Па
+        {Types::VISCOSITY_GRADIENT, 1/101325.0}, // 1/атм -> 1/Па
         {Types::VOLUMETRIC_EXPANSION, 1.0},
         {Types::VOLUME, 1.0},
         {Types::DIMENSIONLESS, 1.0},
@@ -169,10 +169,10 @@ Eigen::ArrayXd Unit::diconvert(Eigen::ArrayXd& array, Types type) {
 
 
 double Unit::diconvert(double value, Unit::Types type) {
-    return value*convcoeff[outsys][insys][type];
+    return value*convcoeff[insys][outsys][type]; // из промысловой системы в СИ
 }
 
 
 double Unit::convert(double value, Unit::Types type) {
-    return value*convcoeff[insys][outsys][type];;
+    return value*convcoeff[outsys][insys][type];
 }

@@ -19,6 +19,21 @@ public:
     Eigen::ArrayXd Mu(const Eigen::ArrayXd& p) override;
     Eigen::ArrayXd Rho(const Eigen::ArrayXd& p) override;
 
+    void setPwRef(double value);
+    void setBwRef(double value);
+    void setCw(double value);
+    void setMwRef(double value);
+    void setCvw(double value);
+    void setRhoW(double value);
+
+    double getPwRef();
+    double getBwRef();
+    double getCw();
+    double getMwRef();
+    double getCvw();
+    double getRhoW();
+
+    void update();
 
 
     std::vector<double> values() override;
@@ -31,5 +46,4 @@ private:
     double cvw = 1.0E-9;
     double rhow = 1000.0;
 };
-
 #endif // PVTW_H

@@ -9,8 +9,7 @@ Solver::Solver(Grid* grid, Well* well) :
     Eigen::initParallel();
     int numThreads = std::thread::hardware_concurrency();  // Количество потоков, поддерживаемых машиной
     Eigen::setNbThreads(numThreads);
-    mkl_set_num_threads(numThreads);
-
+    //mkl_set_num_threads(numThreads);
 }
 
 void Solver::setup(double totalTime, double initialDt) {

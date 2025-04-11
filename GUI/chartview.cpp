@@ -1,75 +1,68 @@
 #include "chartview.h"
-#include <QDebug>
 
-ChartView::ChartView(QWidget *parent)
-        : QChartView(parent)
-{
-    // Создаем и настраиваем график
-    m_chart = new QChart();
-    m_chart->setMargins(QMargins(0, 0, 0, 0));  // Уменьшаем отступы
-    m_chart->legend()->setVisible(true);         // Показываем легенду
-
-    // Создаем оси
-    m_axisX = new QValueAxis();
-    m_axisY = new QValueAxis();
-
-    m_chart->addAxis(m_axisX, Qt::AlignBottom);
-    m_chart->addAxis(m_axisY, Qt::AlignLeft);
-
-    // Устанавливаем график в QChartView
-    this->setChart(m_chart);
-    this->setRenderHint(QPainter::Antialiasing);  // Включаем сглаживание
+ChartView::ChartView(QWidget* parent) :
+            QChartView(parent),
+            m_isDragging(false) {
+    setRenderHint(QPainter::Antialiasing);
+    setRubberBand(QChartView::RectangleRubberBand);
 }
 
-// Добавление серии данных
-void ChartView::addSeries(QAbstractSeries *series)
-{
-    m_chart->addSeries(series);
-    series->attachAxis(m_axisX);
-    series->attachAxis(m_axisY);
+ChartView::ChartView(QChart* chart, QWidget* parent) :
+            QChartView(chart, parent),
+            m_isDragging(false) {
+    setRenderHint(QPainter::Antialiasing);
+    setRubberBand(QChartView::RectangleRubberBand);
 }
 
-// Установка заголовка графика
-void ChartView::setChartTitle(const QString &title)
-{
-    m_chart->setTitle(title);
+template<typename T, typename... Args>
+T* ChartView::createAndSetChart(Args&&... args) {
+    static_assert(std::is_base_of<QChart, T>::value,"T must be a subclass of QChart");
+
+    T* chart = new T(std::forward<Args>(args)...);
+    setChart(chart);
+    return chart;
 }
 
-// Настройка оси X
-void ChartView::setAxisX(const QString &title, double min, double max)
-{
-    m_axisX->setTitleText(title);
-    m_axisX->setRange(min, max);
+void ChartView::setChart(QChart* chart) {
+    QChartView::setChart(chart);
+    if (chart) {
+        chart->setAcceptHoverEvents(true);
+        chart->legend()->setVisible(true);
+    }
 }
 
-// Настройка оси Y
-void ChartView::setAxisY(const QString &title, double min, double max)
-{
-    m_axisY->setTitleText(title);
-    m_axisY->setRange(min, max);
+void ChartView::updateChart() {
+    if (chart()) {
+        chart()->update();
+        viewport()->update();
+    }
 }
 
-// Переопределение событий (пример масштабирования)
-void ChartView::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton)
-        qDebug() << "Left mouse pressed at" << event->pos();
+void ChartView::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        m_lastMousePos = event->pos();
+        m_isDragging = true;
+    }
     QChartView::mousePressEvent(event);
 }
 
-void ChartView::mouseMoveEvent(QMouseEvent *event)
-{
-    // Можно добавить логику перемещения графика
+void ChartView::mouseMoveEvent(QMouseEvent* event) {
+    if (m_isDragging && chart()) {
+        auto dPos = event->pos() - m_lastMousePos;
+        chart()->scroll(-dPos.x(), dPos.y());
+        m_lastMousePos = event->pos();
+    }
     QChartView::mouseMoveEvent(event);
 }
 
-void ChartView::wheelEvent(QWheelEvent *event)
-{
-    // Масштабирование колесиком мыши
-    if (event->angleDelta().y() > 0)
-        m_chart->zoomIn();
-    else
-        m_chart->zoomOut();
-
+void ChartView::wheelEvent(QWheelEvent* event) {
+    if (chart()) {
+        const double factor = 1.1;
+        if (event->angleDelta().y() > 0) {
+            chart()->zoom(factor);
+        } else {
+            chart()->zoom(1.0 / factor);
+        }
+    }
     QChartView::wheelEvent(event);
 }

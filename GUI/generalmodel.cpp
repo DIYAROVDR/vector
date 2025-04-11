@@ -3,42 +3,49 @@
 GeneralModel::GeneralModel(QObject* parent, PhysicalQuantity* physicalquantity) :
               QAbstractItemModel(parent),
               physicalquantity(physicalquantity),
-              rootNode(new TreeNode("Root")),
+              rootNode(new TreeNode("Общее")),
               h5filemanager(H5FileManager::instance()) {
-    initName = {
+    bold.setBold(true);
+
+    init = {
         {Grid::Initialization::EQUILIBRIUM, "Равновестная"},
         {Grid::Initialization::NONEQUILIBRIUM, "Неравновестная"}
     };
 
-    unitSystemName = {
+    unit = {
         {Unit::System::SI, "СИ"},
         {Unit::System::TS, "Промысловые"}
     };
 
-    dateNode = new TreeNode("Дата начала расчета", rootNode);
-    rootNode->children.append(dateNode);
+    dateNode = new TreeNode("Дата начала расчета", QDateTime::currentDateTime(), rootNode);
+    unitNode = new TreeNode("Система едениц измерения",unit[Unit::System::TS], rootNode);
+    phaseNode = new TreeNode("Фазы",QVariant(), rootNode);
+    initNode = new TreeNode("Тип инициализации", init[Grid::Initialization::EQUILIBRIUM], rootNode);
+    regionNode = new TreeNode("Количество регионов" ,QVariant(), rootNode);
 
-    unitNode = new TreeNode("Система едениц измерения", rootNode);
-    rootNode->children.append(unitNode);
+    rootNode->children.append({
+        dateNode,
+        unitNode,
+        phaseNode,
+        initNode,
+        regionNode
+    });
 
-    phaseNode = new TreeNode("Фазы", rootNode);
-    phaseNode->children.append(new TreeNode("Нефть", phaseNode));
-    phaseNode->children.append(new TreeNode("Вода", phaseNode));
-    phaseNode->children.append(new TreeNode("Газ", phaseNode));
-    phaseNode->children.append(new TreeNode("Растворенный газ", phaseNode));
-    phaseNode->children.append(new TreeNode("Испаренная нефть", phaseNode));
-    rootNode->children.append(phaseNode);
+    phaseNode->children.append({
+        new TreeNode("Вода", true, phaseNode),
+        new TreeNode("Нефть", false, phaseNode),
+        new TreeNode("Газ", false, phaseNode),
+        new TreeNode("Растворенный газ",false, phaseNode),
+        new TreeNode("Испаренная нефть",false, phaseNode)
+    });
 
-    initNode = new TreeNode("Тип инициализации", rootNode);
-    rootNode->children.append(initNode);
-
-    regionNode = new TreeNode("Количество регионов", rootNode);
-    regionNode->children.append(new TreeNode("Отчета", regionNode));
-    regionNode->children.append(new TreeNode("PVT", regionNode));
-    regionNode->children.append(new TreeNode("Фильтраций", regionNode));
-    regionNode->children.append(new TreeNode("Свойств породы", regionNode));
-    regionNode->children.append(new TreeNode("Равновесия", regionNode));
-    rootNode->children.append(regionNode);
+    regionNode->children.append({
+        new TreeNode("Отчета",1, regionNode),
+        new TreeNode("PVT",1, regionNode),
+        new TreeNode("Фильтраций",1, regionNode),
+        new TreeNode("Свойств породы",1, regionNode),
+        new TreeNode("Равновесия",1, regionNode)
+    });
 }
 
 
@@ -59,13 +66,11 @@ bool GeneralModel::setData(const QModelIndex& index, const QVariant& value, int 
         if (node == dateNode) {
             startDate = value.toDateTime();
         } else if (node == unitNode) {
-            Unit::System val = unitSystemName.key(value.toString());
-            h5filemanager.setUnitSystem(val);
-            physicalquantity->setUnitSystem(val);
+            node->value = value.toString();
         } else if (node == initNode) {
-            node->value = static_cast<int>(initName.key(value.toString())); // QVariant::fromValue(
+            node->value = value.toString();
         } else if (node->parent == regionNode) {
-            node->parent->value= value.toInt();
+            node->value= value.toInt();
         } else {
             return false;
         }
@@ -101,10 +106,10 @@ QVariant GeneralModel::data(const QModelIndex& index, int role) const {
                 return node->value.toDateTime();
             }
             if (node == unitNode) {
-                return unitSystemName[h5filemanager.unitSystem()];
+                return node->value.toString();
             }
             if (node == initNode) {
-                return initName[h5filemanager.typeInitialization()];
+                return node->value.toString();
             }
             if (node->parent == regionNode) {
                 return node->value.toInt();
@@ -142,12 +147,7 @@ QVariant GeneralModel::data(const QModelIndex& index, int role) const {
         break;
 
     case Qt::FontRole:
-        if (index.column() == 0 && node->parent == rootNode) {
-            QFont font;
-            font.setBold(true);
-            return font;
-        }
-        break;
+        if (index.column() == 0 && node->parent == rootNode) return QFont(bold);
     }
 
     return QVariant();
@@ -257,22 +257,18 @@ void GeneralModel::saveData() {
         ++item;
     }
 
-    Grid::Initialization init = static_cast<Grid::Initialization>(initNode->value.toInt());
+    Grid::Initialization initval = static_cast<Grid::Initialization>(init.key(initNode->value.toString()));
 
     h5filemanager.setStartDate(arrdate);
     h5filemanager.setFluids(fluids);
     h5filemanager.setRegions(regions);
-    h5filemanager.setTypeInitialization(init);
+    h5filemanager.setTypeInitialization(initval);
+
+    Unit::System val = unit.key( unitNode->value.toString());
+    h5filemanager.setUnitSystem(val);
+    physicalquantity->setUnitSystem(val);
 }
 
 void GeneralModel::loadData() {
 
-}
-
-
-int GeneralModel::TreeNode::row() const {
-    if (parent) {
-        return parent->children.indexOf(const_cast<TreeNode*>(this));
-    }
-    return 0;
 }

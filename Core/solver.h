@@ -4,16 +4,12 @@
 #include <chrono>
 #include <thread>
 
-#include <mkl.h>
-#include <Eigen/PardisoSupport>
+//#include <mkl.h>
+//#include <Eigen/PardisoSupport>
 
 #include "h5filemanager.h"
 #include "grid.h"
 #include "well.h"
-
-#include <iostream>
-
-#include <QObject>
 
 #include <QElapsedTimer>
 #include <QDebug>
@@ -42,12 +38,12 @@ private:
     double initialDt;
     bool isStopped;  // Флаг для остановки расчётов
 
-
     Eigen::VectorXd R;
     Eigen::VectorXd Pnew;
     Eigen::VectorXd Pold;
     Eigen::SparseMatrix<double> jacobian;
-    Eigen::PardisoLDLT <Eigen::SparseMatrix<double>> solver;
+    //Eigen::PardisoLDLT <Eigen::SparseMatrix<double>> solver;
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
     bool applyNewtonRaphson(double dt);
     void assembleSystem(double dt);
     void solveAllSteps();

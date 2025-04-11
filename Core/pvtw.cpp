@@ -1,7 +1,9 @@
 #include "pvtw.h"
 
 // Вода.
-PVTW::PVTW() {}
+PVTW::PVTW() {
+    update();
+}
 
 
 void PVTW::setData(const std::vector<double>& data) {
@@ -12,8 +14,8 @@ void PVTW::setData(const std::vector<double>& data) {
     cvw = data[4];
     rhow = data[5];
 
-    b.clear();
-    m.clear();
+    b.resize(0);
+    m.resize(0);
 
     int n = p.size();
 
@@ -64,6 +66,65 @@ Eigen::ArrayXd PVTW::Mu(const Eigen::ArrayXd& p) {
 
 Eigen::ArrayXd PVTW::Rho(const Eigen::ArrayXd &p) {
      return rhow/B(p);
+}
+
+void PVTW::setPwRef(double value) {
+    pwref = value;
+}
+
+void PVTW::setBwRef(double value) {
+    bwref = value;
+}
+
+void PVTW::setCw(double value) {
+    cw = value;
+}
+
+void PVTW::setMwRef(double value) {
+    mwref = value;
+}
+
+void PVTW::setCvw(double value) {
+    cvw = value;
+}
+
+void PVTW::setRhoW(double value) {
+    rhow = value;
+}
+double PVTW::getPwRef() {
+    return pwref;
+}
+
+double PVTW::getBwRef() {
+    return bwref;
+}
+
+double PVTW::getCw() {
+    return cw;
+}
+
+double PVTW::getMwRef() {
+    return mwref;
+}
+
+double PVTW::getCvw() {
+    return cvw;
+}
+
+double PVTW::getRhoW() {
+    return rhow;
+}
+
+void PVTW::update() {
+    int n = p.size();
+
+    b.resize(n);
+    m.resize(n);
+
+    for(int i = 0; i < n; ++i) {
+        b[i] = B(p[i]);
+        m[i] = Mu(p[i]);
+    }
 }
 
 

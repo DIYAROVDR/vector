@@ -61,7 +61,7 @@ find_package(VTK REQUIRED COMPONENTS
 )
 
 file(GLOB MODEL_SOURCES ${CMAKE_SOURCE_DIR}/Core/*.cpp ${CMAKE_SOURCE_DIR}/Core/*.hpp ${CMAKE_SOURCE_DIR}/Core/*.h)
-file(GLOB DATA_SOURCES ${CMAKE_SOURCE_DIR}/GUI/*.cpp ${CMAKE_SOURCE_DIR}/GUI/*.h ${CMAKE_SOURCE_DIR}/GUI/*.ui)
+file(GLOB DATA_SOURCES ${CMAKE_SOURCE_DIR}/GUI/*.cpp ${CMAKE_SOURCE_DIR}/GUI/*.h)
 
 set(PROJECT_SOURCES
     ${CMAKE_SOURCE_DIR}/main.cpp
@@ -111,37 +111,33 @@ target_link_libraries(vector PRIVATE
   VTK::IOHDF
 )
 
-if(WIN32)
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        set(ENV{PATH} "$ENV{PATH};c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
-    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(ENV{PATH} "$ENV{PATH};c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
-    endif()
-endif()
 
-target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
-target_link_libraries(vector PRIVATE tbb12.lib tbb12.dll)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    # Release configuration
-    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/include")
-    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
-    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
-    target_link_libraries(vector PRIVATE tbb12.lib tbb12.dll)
-    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/include")
-    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/lib")
-    target_link_libraries(vector PRIVATE mkl_intel_lp64 mkl_tbb_thread mkl_core mkl_rt)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # Debug configuration
-    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/include")
-    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
-    target_link_libraries(vector PRIVATE tbb)
-    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/include")
-    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/lib")
-    target_link_libraries(vector PRIVATE mkl_intel_lp64_dll mkl_tbb_thread_dll mkl_core_dll mkl_rt)
-endif()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D EIGEN_USE_MKL_ALL /D EIGEN_USE_PARDISO")
+#if(WIN32)
+#    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#        set(ENV{PATH} "$ENV{PATH};c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
+#    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#        set(ENV{PATH} "$ENV{PATH};c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
+#    endif()
+#endif()
+#target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
+#target_link_libraries(vector PRIVATE tbb12.lib tbb12.dll)
+#if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/include")
+#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
+#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
+#    target_link_libraries(vector PRIVATE tbb12.lib tbb12.dll)
+#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/include")
+#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/lib")
+#    target_link_libraries(vector PRIVATE mkl_intel_lp64 mkl_tbb_thread mkl_core mkl_rt)
+#elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/include")
+#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
+#    target_link_libraries(vector PRIVATE tbb)
+#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/include")
+#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/lib")
+#    target_link_libraries(vector PRIVATE mkl_intel_lp64_dll mkl_tbb_thread_dll mkl_core_dll mkl_rt)
+#endif()
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D EIGEN_USE_MKL_ALL /D EIGEN_USE_PARDISO")
 
 
 set_target_properties(vector PROPERTIES

@@ -13,6 +13,11 @@ PVTDataWidget::PVTDataWidget(QWidget* parent, PhysicalQuantity* physicalquantity
     pvtTableModel->setTreeModel(pvtTreeModel);
     tableView->setModel(pvtTableModel);
 
+    pvtChartModel = new PVTChartModel();
+    pvtChartModel->setTableModel(pvtTableModel);
+
+    charView->setChart(pvtChartModel);
+
     treeView->setModel(pvtTreeModel);
     treeView->setItemDelegateForColumn(1, new MultiDelegate(this));
     treeView->expandAll();
@@ -25,8 +30,6 @@ PVTDataWidget::PVTDataWidget(QWidget* parent, PhysicalQuantity* physicalquantity
     splmain->setOpaqueResize(false);
     splmain->setStretchFactor(0,1);
     splmain->setStretchFactor(1,4);
-
-    charView->setChartTitle("Данные");
 
     setLayout(new QVBoxLayout(this));
     layout()->addWidget(splmain);

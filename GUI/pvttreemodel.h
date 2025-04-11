@@ -5,6 +5,7 @@
 #include <QFont>
 #include <QColor>
 #include "delegatetype.h"
+#include <iostream>
 
 #include "../Core/physicalquantity.h"
 #include "../Core/pvtw.h"
@@ -66,7 +67,7 @@ private:
         }
     };
 
-    PhysicalQuantity* physicalquantity;
+    PhysicalQuantity* quantity;
 
     TreeNode* rootNode;
     TreeNode* regionsNode;
@@ -74,7 +75,7 @@ private:
     TreeNode* waterNode;
     TreeNode* lastSelectNode;
 
-    QVector<PVTBase*> waterpvt;
+    QVector<PVTW*> waterpvt;
 };
 
 #endif // PVTMODEL_H

@@ -9,7 +9,6 @@ enum class FluidType {
     GAS
 };
 
-
 class PVTBase {
 public:
     PVTBase();
@@ -27,16 +26,15 @@ public:
 
     virtual void setData(const std::vector<double>& data) = 0;
 
-    std::vector<double> ptab();
-    std::vector<double> btab();
-    std::vector<double> mutab();
+    Eigen::ArrayXd ptab();
+    Eigen::ArrayXd btab();
+    Eigen::ArrayXd mutab();
 
     virtual std::vector<double> values() = 0;
 protected:
-    std::vector<double> p;
-    std::vector<double> b;
-    std::vector<double> m;
+    Eigen::ArrayXd p;
+    Eigen::ArrayXd b;
+    Eigen::ArrayXd m;
 };
-
 
 #endif // PVTBASE_H

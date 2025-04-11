@@ -1,35 +1,14 @@
 #ifndef GRIDDATAWIDGET_H
 #define GRIDDATAWIDGET_H
 
-#include <mkl.h>
-#include <Eigen/Sparse>
-#include <Eigen/PardisoSupport>
-#include <Eigen/IterativeLinearSolvers>
-
-#include <chrono>
 #include <thread>
-
-#include <QWidget>
-#include <QFile>
-#include <QTextStream>
-#include <QRegularExpression>
 #include <vtkDoubleArray.h>
-#include <vtkSmartPointer.h>
-
-#include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QHeaderView>
-#include <QTreeWidget>
-
-#include <numeric>
-#include <algorithm>
 
 #include "creatorwidgets.h"
-#include "ttdelegate.h"
 
 #include "../Core/h5filemanager.h"
-#include "../Core/pvtw.h"
 #include "../Core/blockcenteredgrid.h"
 #include "../Core/well.h"
 

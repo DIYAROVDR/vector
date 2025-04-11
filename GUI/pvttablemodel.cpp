@@ -75,7 +75,7 @@ void PVTTableModel::loadData() {
     headers = pvtTreeModel->tableHeaders();  // Обновляем заголовки
     tableData = pvtTreeModel->tableData();
     endResetModel();    // Завершаем сброс и уведомляем представление
-    //emit dataChanged(index, index);
+    emit dataChanged(createIndex(0,0), createIndex(tableData.first().size(),tableData.size()));
 
     emit headerDataChanged(Qt::Horizontal, 0, headers.size());
 }

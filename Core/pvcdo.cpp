@@ -19,9 +19,8 @@ void PVCDO::setData(const std::vector<double>& data) {
     rhoo = data[7];
     rhog = data[8];
 
-
-    b.clear();
-    m.clear();
+    b.resize(0);
+    m.resize(0);
 
     int n = p.size();
 

@@ -242,9 +242,9 @@ bool PVTTreeModel::setData(const QModelIndex &index, const QVariant &value, int 
 
 QStringList PVTTreeModel::tableHeaders() {
     QStringList headers = {
-            "Давление",
-            "Вязкость",
-            "Коэффициент объемного расширения"
+        "Давление, атм",
+        "Вязкость, сПз",
+        "Коэффициент объемного расширения, м3/м3"
     };
 
     return headers;

@@ -1,5 +1,5 @@
-#ifndef VECTOR_PVTTABLEMODEL_H
-#define VECTOR_PVTTABLEMODEL_H
+#ifndef PVTTABLEMODEL_H
+#define PVTTABLEMODEL_H
 
 #include <QAbstractTableModel>
 #include "../Core/pvtw.h"
@@ -32,4 +32,4 @@ private:
     QVector<QVector<double>> tableData;
 };
 
-#endif // VECTOR_PVTTABLEMODEL_H
+#endif // PVTTABLEMODEL_H

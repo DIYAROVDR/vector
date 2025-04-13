@@ -11,8 +11,8 @@
 #include <QItemDelegate>
 #include <QLineEdit>
 
-#include "scientificspinbox.h"
-#include "delegatetype.h" // Подключаем DelegateType
+#include "../GUI/scientificspinbox.h"
+#include "../GUI/delegatetype.h"
 
 class MultiDelegate : public QStyledItemDelegate {
     Q_OBJECT

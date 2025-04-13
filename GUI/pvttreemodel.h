@@ -1,5 +1,5 @@
-#ifndef PVTMODEL_H
-#define PVTMODEL_H
+#ifndef PVTTREEMODEL_H
+#define PVTTREEMODEL_H
 
 #include <QAbstractItemModel>
 #include <QFont>
@@ -78,4 +78,4 @@ private:
     QVector<PVTW*> waterpvt;
 };
 
-#endif // PVTMODEL_H
+#endif // PVTTREEMODEL_H

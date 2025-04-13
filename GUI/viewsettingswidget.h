@@ -3,7 +3,6 @@
 
 #include <QWidget>
 
-
 class ViewSettingsWidget : public QWidget {
     Q_OBJECT
 

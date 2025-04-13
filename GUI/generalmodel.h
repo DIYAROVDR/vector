@@ -10,7 +10,7 @@
 #include <QDebug>
 #include <QMap>
 
-#include "delegatetype.h"
+#include "../GUI/delegatetype.h"
 
 #include "../Core/physicalquantity.h"
 #include "../Core/h5filemanager.h"

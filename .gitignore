@@ -4,6 +4,10 @@
 *.xml
 *.workspace
 
+# ================= Project data =================
+save/
+*.h5
+
 # ================= CMake build directories =================
 cmake-build-*/
 build/
@@ -34,6 +38,7 @@ install_manifest.txt
 
 # ================= Qt specific =================
 *.qrc.user
+CMakeLists.txt.user
 *.ui
 moc_*
 qrc_*

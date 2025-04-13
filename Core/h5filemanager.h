@@ -5,10 +5,10 @@
 #include <variant>
 #include <filesystem>
 #include <Eigen/Core>
+#include <eigen3-hdf5.hpp>
 
-#include "grid.h"
-#include "eigen3-hdf5.hpp"
-#include "physicalquantity.h"
+#include "../Core/grid.h"
+#include "../Core/physicalquantity.h"
 
 using DataMap = std::map<std::string, std::variant<int, double>>;
 

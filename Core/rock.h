@@ -1,7 +1,7 @@
 #ifndef ROCK_H
 #define ROCK_H
 
-#include "rockdata.h"
+#include "../Core/rockdata.h"
 #include "Eigen/Dense"
 
 class Rock {

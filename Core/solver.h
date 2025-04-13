@@ -4,27 +4,20 @@
 #include <chrono>
 #include <thread>
 
-//#include <mkl.h>
-//#include <Eigen/PardisoSupport>
-
 #include "h5filemanager.h"
 #include "grid.h"
 #include "well.h"
 
-#include <QElapsedTimer>
-#include <QDebug>
 
-class Solver : public QObject {
-    Q_OBJECT
+class Solver  {
 public:
     Solver(Grid* grid, Well* well);
     void setup(double totalTime, double initialDt);
     void stop();  // Остановка расчётов
-signals:
     void finished();  // Сигнал об окончании работы
     void progressUpdated(double currentTime, double totalTime);  // Сигнал для обновления прогресса
-    void errorOccurred(const QString& error);  // Сигнал об ошибке
-public slots:
+    //void errorOccurred(const QString& error);  // Сигнал об ошибке
+public :
     void run();  // Слот для запуска расчётов
 private:
     Grid* grid;

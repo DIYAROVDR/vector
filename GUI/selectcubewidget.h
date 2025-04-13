@@ -6,7 +6,7 @@
 #include <QFont>
 #include <map>
 
-#include "ttdelegate.h"
+#include "../GUI/ttdelegate.h"
 
 class SelectCubeWidget : public QTreeWidget {
     Q_OBJECT

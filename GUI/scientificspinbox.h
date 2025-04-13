@@ -1,9 +1,5 @@
-//
-// Created by Damir on 27.03.2025.
-//
-
-#ifndef VECTOR_SCIENTIFICSPINBOX_H
-#define VECTOR_SCIENTIFICSPINBOX_H
+#ifndef SCIENTIFICSPINBOX_H
+#define SCIENTIFICSPINBOX_H
 
 #include <QDoubleSpinBox>
 #include <QLocale>
@@ -27,4 +23,4 @@ private:
 };
 
 
-#endif //VECTOR_SCIENTIFICSPINBOX_H
+#endif //SCIENTIFICSPINBOX_H

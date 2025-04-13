@@ -1,6 +1,4 @@
 #include "scientificspinbox.h"
-#include <QLocale>
-#include <cmath>
 
 ScientificSpinBox::ScientificSpinBox(QWidget* parent)
         : QDoubleSpinBox(parent),

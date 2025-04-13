@@ -6,16 +6,14 @@
 #include <QTreeWidgetItem>
 #include <QHeaderView>
 #include <QHBoxLayout>
+#include <QPushButton>
 #include <QVBoxLayout>
 #include <QButtonGroup>
 
-#include "creatorwidgets.h"
-
 #include "../Core/physicalquantity.h"
-#include "generalmodel.h"
-#include "multidelegate.h"
-
-#include "treeview.h"
+#include "../GUI/generalmodel.h"
+#include "../GUI/multidelegate.h"
+#include "../GUI/treeview.h"
 
 class GenPropWidget : public QWidget {
     Q_OBJECT

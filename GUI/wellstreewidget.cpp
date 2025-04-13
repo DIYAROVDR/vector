@@ -1,9 +1,4 @@
 #include "wellstreewidget.h"
-#include <QVBoxLayout>
-#include <QHeaderView>
-#include <QStandardItem>
-#include <QStandardItemModel>
-#include <QRegExpValidator>
 
 WellsTreeWidget::WellsTreeWidget(QWidget* parent):
                 QWidget(parent),

@@ -1,6 +1,5 @@
 #include "pvtchartmodel.h"
 #include "pvttablemodel.h"
-#include <QDebug>
 
 PVTChartModel::PVTChartModel(QGraphicsItem* parent) :
     QChart(parent),

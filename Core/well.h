@@ -1,14 +1,8 @@
 #ifndef WELL_H
 #define WELL_H
 
-#include <math.h>
-#include <cstring>
-#include <algorithm>
-#include <vector>
-
-#include "../GUI/units.h"
-#include "blockcenteredgrid.h"
-#include "welldata.h"
+#include "../Core/blockcenteredgrid.h"
+#include "../Core/welldata.h"
 
 #define M_PI 3.14159265358979323846
 

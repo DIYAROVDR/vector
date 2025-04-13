@@ -170,11 +170,11 @@ void H5FileManager::setDimens(int nx, int ny, int nz) {
     size_t item = 0;
     for (const auto& pair : datatypes) {
         if (pair.first >= AttributeTypes::NX && pair.first <= AttributeTypes::NZ) {
-            datageneral[pair.second] = dim[item];
+            datagrid[pair.second] = dim[item];
             ++item;
         }
     }
-    saveToAttribute(datageneral,general);
+    saveToAttribute(datagrid,grid);
 }
 
 

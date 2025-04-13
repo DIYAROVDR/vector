@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPointer>
 #include <QMouseEvent>
+
 #include <QVTKOpenGLNativeWidget.h>
 #include <vtkSmartPointer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -36,12 +37,13 @@
 
 #include <vtkCellData.h>
 
-
 #include <vtkCylinderSource.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
+
+
 
 
 class SpatialViewWidget : public QWidget {

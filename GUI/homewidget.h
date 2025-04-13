@@ -12,7 +12,7 @@
 #include <QScrollArea>
 #include <QSpacerItem>
 
-#include "aspectratiopixmaplabel.h"
+#include "../GUI/aspectratiopixmaplabel.h"
 
 class HomeWidget : public QWidget {
     Q_OBJECT

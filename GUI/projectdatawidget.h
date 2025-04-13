@@ -9,19 +9,17 @@
 #include <QLabel>
 #include <QDebug>
 #include <QStackedWidget>
-
 #include <QDir>
 #include <QDesktopServices>
 #include <QUrl>
 
-#include "pvtdatawidget.h"
-#include "rockdatawidget.h"
-#include "griddatawidget.h"
-#include "genpropwidget.h"
-#include "initdatawidget.h"
-#include "fillcubewidget.h"
-#include "wellsdatawidget.h"
-
+#include "../GUI/pvtdatawidget.h"
+#include "../GUI/rockdatawidget.h"
+#include "../GUI/griddatawidget.h"
+#include "../GUI/genpropwidget.h"
+#include "../GUI/initdatawidget.h"
+#include "../GUI/fillcubewidget.h"
+#include "../GUI/wellsdatawidget.h"
 #include "../Core/h5filemanager.h"
 
 class ProjectDataWidget : public QWidget {

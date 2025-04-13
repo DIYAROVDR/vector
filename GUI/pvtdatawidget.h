@@ -1,5 +1,5 @@
-#ifndef PVTDATAFORM_H
-#define PVTDATAFORM_H
+#ifndef PVTDATAWIDGET_H
+#define PVTDATAWIDGET_H
 
 #include <QWidget>
 #include <QLineEdit>
@@ -10,11 +10,8 @@
 #include <QHeaderView>
 #include <QSplitter>
 #include <QDebug>
+#include <QVBoxLayout>
 
-#include "units.h"
-#include "creatorwidgets.h"
-#include "ttdelegate.h"
-#include "plotwidget.h"
 
 #include "../Core/pvt.h"
 #include "../Core/pvtw.h"
@@ -22,13 +19,14 @@
 #include "../Core/density.h"
 #include "../Core/physicalquantity.h"
 
-#include "treeview.h"
-#include "tableview.h"
-#include "chartview.h"
-#include "pvttreemodel.h"
-#include "pvttablemodel.h"
-#include "pvtchartmodel.h"
-#include "multidelegate.h"
+#include "../GUI/ttdelegate.h"
+#include "../GUI/treeview.h"
+#include "../GUI/tableview.h"
+#include "../GUI/chartview.h"
+#include "../GUI/pvttreemodel.h"
+#include "../GUI/pvttablemodel.h"
+#include "../GUI/pvtchartmodel.h"
+#include "../GUI/multidelegate.h"
 
 
 class PVTDataWidget : public QWidget {
@@ -55,4 +53,4 @@ private:
     PVTChartModel* pvtChartModel;
 };
 
-#endif // PVTDATAFORM_H
+#endif // PVTDATAWIDGET_H

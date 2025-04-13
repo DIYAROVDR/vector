@@ -80,7 +80,9 @@ HomeWidget::~HomeWidget() {
 void HomeWidget::on_btn_create_new_project_clicked() {
     // Устанавливаем начальное имя файла
     QString baseName = "project";
-    QString dirPath = "c:/Users/Damir/Desktop/main/pro/vector/save/";
+    //
+    // c:/Users/Damir/Desktop/main/pro/vector/save/
+    QString dirPath = "/home/diyarovdr/projects/vector/save/";
     QString filePath = dirPath + baseName + ".h5";
     int index = 1;
 

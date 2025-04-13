@@ -7,7 +7,7 @@
 #include <QSpacerItem>
 #include <QVBoxLayout>
 #include <QGridLayout>
-#include "spatialviewwidget.h"
+#include "../GUI/spatialviewwidget.h"
 
 class AddViewWidget : public QWidget {
     Q_OBJECT

@@ -14,16 +14,15 @@
 #include "../Core/physicalquantity.h"
 #include "../Core/wells.h"
 
-#include "wellstreewidget.h"
-#include "creatorwidgets.h"
-#include "wellcontrolmodel.h"
-#include "welltrajectorymodel.h"
-#include "perforationmodel.h"
-#include "doublevalidatordelegate.h"
-#include "doublespinboxdelegate.h"
-#include "comboboxdelegate.h"
-#include "dateeditdelegate.h"
-#include "tableview.h"
+#include "../GUI/wellstreewidget.h"
+#include "../GUI/wellcontrolmodel.h"
+#include "../GUI/welltrajectorymodel.h"
+#include "../GUI/perforationmodel.h"
+#include "../GUI/doublevalidatordelegate.h"
+#include "../GUI/doublespinboxdelegate.h"
+#include "../GUI/comboboxdelegate.h"
+#include "../GUI/dateeditdelegate.h"
+#include "../GUI/tableview.h"
 
 class WellsDataWidget : public QWidget {
     Q_OBJECT

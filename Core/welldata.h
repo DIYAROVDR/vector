@@ -2,10 +2,10 @@
 #define WELLDATA_H
 
 #include "Eigen/Dense"
-#include "../GUI/units.h"
+#include "../Core/unit.h"
 
 struct Control {
-    UnitType type = UnitType::PRESSURE;
+    Unit::Types type = Unit::Types::PRESSURE;
     double time = 0.0;
     double value = 0.0;
 };

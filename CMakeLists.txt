@@ -1,19 +1,17 @@
 cmake_minimum_required(VERSION 3.16)
 project(vector VERSION 0.1 LANGUAGES C CXX)
 
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-add_definitions(-DQT_ASSUME_STDERR_HAS_CONSOLE=1)
 
 set(QT_VERSION_MAJOR 5)
 
 if(UNIX)
     set(Eigen3_INCLUDE_DIR "/home/diyarovdr/lib/eigen-3.4.0")
+    set(Eigen3_HDF5_INCLUDE_DIR "/home/diyarovdr/lib/eigen-hdf5")
     set(HDF5_ROOT "/usr/local/HDF_Group/HDF5/1.14.2")
     set(Python3_ROOT_DIR "/usr/bin/python3.10")
     set(Python3_EXECUTABLE "/usr/bin/python3.10")
@@ -28,10 +26,8 @@ elseif(WIN32)
 endif()
 
 
-# Ищем только Qt 5
 find_package(Qt5 REQUIRED COMPONENTS
     Widgets
-    PrintSupport
     OpenGL
     Charts
 )
@@ -42,39 +38,96 @@ find_package(HDF5 REQUIRED COMPONENTS
 )
 
 find_package(VTK REQUIRED COMPONENTS
-  CommonColor
-  CommonCore
-  CommonDataModel
-  FiltersGeometry
-  FiltersSources
-  InteractionStyle
-  RenderingContextOpenGL2
-  RenderingCore
-  RenderingFreeType
-  RenderingGL2PSOpenGL2
-  RenderingOpenGL2
-  GUISupportQt
-  RenderingAnnotation
-  RenderingVolume
-  WrappingPythonCore
-  IOHDF
+    CommonColor
+    CommonCore
+    CommonDataModel
+    FiltersGeometry
+    FiltersSources
+    InteractionStyle
+    RenderingContextOpenGL2
+    RenderingCore
+    RenderingFreeType
+    RenderingGL2PSOpenGL2
+    RenderingOpenGL2
+    GUISupportQt
+    RenderingAnnotation
+    RenderingVolume
+    WrappingPythonCore
 )
 
-file(GLOB MODEL_SOURCES ${CMAKE_SOURCE_DIR}/Core/*.cpp ${CMAKE_SOURCE_DIR}/Core/*.hpp ${CMAKE_SOURCE_DIR}/Core/*.h)
-file(GLOB DATA_SOURCES ${CMAKE_SOURCE_DIR}/GUI/*.cpp ${CMAKE_SOURCE_DIR}/GUI/*.h)
-
-set(PROJECT_SOURCES
-    ${CMAKE_SOURCE_DIR}/main.cpp
-    ${MODEL_SOURCES}
-    ${DATA_SOURCES}
-    ${HELPERS_SOURCES}
-    ${SOLVER_SOURCES}
-    ${VIEW_SOURCES}
+set(CORE_CPP_SOURCES
+    Core/h5filemanager.cpp
+    Core/physicalquantity.cpp
+    Core/unit.cpp
+    Core/blockcenteredgrid.cpp
+    Core/solver.cpp
+    Core/grid.cpp
+    Core/pvtw.cpp
+    Core/pvt.cpp
+    Core/pvcdo.cpp
+    Core/well.cpp
+    Core/pvdo.cpp
+    Core/rock.cpp
+    Core/welldata.cpp
+    Core/density.cpp
+    Core/rockdata.cpp
+    Core/pvtbase.cpp
+    Core/wells.cpp
+    Core/pvdg.cpp
 )
 
-# Создаем исполняемый файл
+set(GUI_CPP_SOURCES
+    GUI/spatialviewwidget.cpp
+    GUI/pvttreemodel.cpp
+    GUI/generalmodel.cpp
+    GUI/cubestreemodel.cpp
+    GUI/wellstreewidget.cpp
+    GUI/griddatamodel.cpp
+    GUI/fillcubewidget.cpp
+    GUI/projectdatawidget.cpp
+    GUI/mainwindow.cpp
+    GUI/homewidget.cpp
+    GUI/wellsdatawidget.cpp
+    GUI/perforationmodel.cpp
+    GUI/cubetreewidget.cpp
+    GUI/multidelegate.cpp
+    GUI/griddatawidget.cpp
+    GUI/wellcontrolmodel.cpp
+    GUI/layerfillcubemodel.cpp
+    GUI/codeeditor.cpp
+    GUI/addviewwidget.cpp
+    GUI/multiviewidget.cpp
+    GUI/pvtchartmodel.cpp
+    GUI/welltrajectorymodel.cpp
+    GUI/timesliderwidget.cpp
+    GUI/pvttablemodel.cpp
+    GUI/scriptsyntaxhighlighter.cpp
+    GUI/selectcubewidget.cpp
+    GUI/chartview.cpp
+    GUI/aspectratiopixmaplabel.cpp
+    GUI/pvtdatawidget.cpp
+    GUI/scientificspinbox.cpp
+    GUI/rockdatawidget.cpp
+    GUI/gridviewwidget.cpp
+    GUI/pythonmodule.cpp
+    GUI/doublespinboxdelegate.cpp
+    GUI/comboboxdelegate.cpp
+    GUI/wellsproxymodel.cpp
+    GUI/genpropwidget.cpp
+    GUI/dateeditdelegate.cpp
+    GUI/doublevalidatordelegate.cpp
+    GUI/customoutputwindow.cpp
+    GUI/initdatawidget.cpp
+    GUI/tableview.cpp
+    GUI/ttdelegate.cpp
+    GUI/treeview.cpp
+    GUI/viewsettingswidget.cpp
+)
+
 add_executable(vector
-    ${PROJECT_SOURCES}
+    ${CORE_CPP_SOURCES}
+    ${GUI_CPP_SOURCES}
+    main.cpp
     res.qrc
 )
 
@@ -83,62 +136,32 @@ target_include_directories(vector PRIVATE
     ${VTK_INCLUDE_DIRS}
     ${HDF5_INCLUDE_DIRS}
     ${Eigen3_INCLUDE_DIR}
+    ${Eigen3_HDF5_INCLUDE_DIR}
 )
 
 target_link_libraries(vector PRIVATE
-  Qt5::Widgets
-  Qt5::OpenGL
-  Qt5::PrintSupport
-  Qt5::Charts
-  ${Python3_LIBRARY}
-  ${HDF5_LIBRARIES}
-  VTK::CommonColor
-  VTK::CommonCore
-  VTK::CommonDataModel
-  VTK::FiltersGeometry
-  VTK::FiltersSources
-  VTK::InteractionStyle
-  VTK::RenderingContextOpenGL2
-  VTK::RenderingCore
-  VTK::RenderingFreeType
-  VTK::RenderingGL2PSOpenGL2
-  VTK::RenderingOpenGL2
-  VTK::GUISupportQt
-  VTK::RenderingAnnotation
-  VTK::RenderingVolume
-  VTK::WrappingPythonCore
-  VTK::PythonInterpreter
-  VTK::IOHDF
+    Qt5::Widgets
+    Qt5::OpenGL
+    Qt5::Charts
+    ${Python3_LIBRARY}
+    ${HDF5_LIBRARIES}
+    VTK::CommonColor
+    VTK::CommonCore
+    VTK::CommonDataModel
+    VTK::FiltersGeometry
+    VTK::FiltersSources
+    VTK::InteractionStyle
+    VTK::RenderingContextOpenGL2
+    VTK::RenderingCore
+    VTK::RenderingFreeType
+    VTK::RenderingGL2PSOpenGL2
+    VTK::RenderingOpenGL2
+    VTK::GUISupportQt
+    VTK::RenderingAnnotation
+    VTK::RenderingVolume
+    VTK::WrappingPythonCore
+    VTK::PythonInterpreter
 )
-
-
-#if(WIN32)
-#    if(CMAKE_BUILD_TYPE STREQUAL "Release")
-#        set(ENV{PATH} "$ENV{PATH};c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
-#    elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#        set(ENV{PATH} "$ENV{PATH};c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
-#    endif()
-#endif()
-#target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
-#target_link_libraries(vector PRIVATE tbb12.lib tbb12.dll)
-#if(CMAKE_BUILD_TYPE STREQUAL "Release")
-#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/include")
-#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/bin/vc_mt")
-#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
-#    target_link_libraries(vector PRIVATE tbb12.lib tbb12.dll)
-#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/include")
-#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/lib")
-#    target_link_libraries(vector PRIVATE mkl_intel_lp64 mkl_tbb_thread mkl_core mkl_rt)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/include")
-#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/tbb/2022.0/lib/vc_mt")
-#    target_link_libraries(vector PRIVATE tbb)
-#    target_include_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/include")
-#    target_link_directories(vector PRIVATE "c:/Program Files (x86)/Intel/oneAPI/mkl/2025.0/lib")
-#    target_link_libraries(vector PRIVATE mkl_intel_lp64_dll mkl_tbb_thread_dll mkl_core_dll mkl_rt)
-#endif()
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D EIGEN_USE_MKL_ALL /D EIGEN_USE_PARDISO")
-
 
 set_target_properties(vector PROPERTIES
     WIN32_EXECUTABLE TRUE
@@ -152,8 +175,7 @@ install(TARGETS vector
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# Инициализация VTK
 vtk_module_autoinit(
-  TARGETS vector
-  MODULES ${VTK_LIBRARIES}
+    TARGETS vector
+    MODULES ${VTK_LIBRARIES}
 )

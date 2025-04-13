@@ -13,14 +13,13 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-#include "creatorwidgets.h"
-#include "codeeditor.h"
-#include "customoutputwindow.h"
-#include "pythonmodule.h"
-#include "cubetreewidget.h"
-#include "layerfillcubemodel.h"
-#include "multidelegate.h"
-#include "tableview.h"
+#include "../GUI/codeeditor.h"
+#include "../GUI/customoutputwindow.h"
+#include "../GUI/pythonmodule.h"
+#include "../GUI/cubetreewidget.h"
+#include "../GUI/layerfillcubemodel.h"
+#include "../GUI/multidelegate.h"
+#include "../GUI/tableview.h"
 
 #include "../Core/h5filemanager.h"
 #include "../Core/physicalquantity.h"

@@ -6,9 +6,9 @@
 #include <QHBoxLayout>
 #include <QSplitter>
 
-#include "selectcubewidget.h"
-#include "viewsettingswidget.h"
-#include "multiviewidget.h"
+#include "../GUI/selectcubewidget.h"
+#include "../GUI/viewsettingswidget.h"
+#include "../GUI/multiviewidget.h"
 
 class GridViewWidget : public QWidget {
     Q_OBJECT

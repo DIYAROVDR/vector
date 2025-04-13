@@ -4,14 +4,7 @@
 RockDataWidget::RockDataWidget(QWidget *parent) : QWidget(parent) {
     mainFont.setPointSize(10);
     setFont(mainFont);
-
-    units = {UnitType::PRESSURE,
-             UnitType::COMPRESSIBILITY,
-             UnitType::COMPRESSIBILITY,
-             UnitType::COMPRESSIBILITY,
-             UnitType::POROSITY,
-             UnitType::POISSON_RATIO};
-
+    
     /*
     double pref = 200E+5;   // опорное давление
     double cpp = 1.0E-10;   // сжимаемость породы

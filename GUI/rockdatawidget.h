@@ -1,13 +1,10 @@
-#ifndef ROCKDATAFORM_H
-#define ROCKDATAFORM_H
+#ifndef ROCKDATAWIDGET_H
+#define ROCKDATAWIDGET_H
 
 #include <QWidget>
 #include <QHeaderView>
 #include <QFont>
 #include <QDebug>
-
-#include "creatorwidgets.h"
-#include "units.h"
 
 #include "../Core/rockdata.h"
 
@@ -29,8 +26,7 @@ private:
     int regnum;
     QFont mainFont;
     std::vector<RockData> rock;
-    std::vector<UnitType> units;
     QStringList headers;
 };
 
-#endif // ROCKDATAFORM_H
+#endif // ROCKDATAWIDGET_H

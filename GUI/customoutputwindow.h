@@ -2,6 +2,8 @@
 #define CUSTOMOUTPUTWINDOW_H
 
 #include <vtkOutputWindow.h>
+#include <vtkObjectFactory.h>
+#include <QString>
 #include <QPlainTextEdit>
 
 class CustomOutputWindow : public vtkOutputWindow {

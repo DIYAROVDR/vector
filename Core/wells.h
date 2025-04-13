@@ -1,7 +1,7 @@
 #ifndef WELLS_H
 #define WELLS_H
 
-#include "well.h"
+#include "../Core/well.h"
 
 class Wells {
 public:

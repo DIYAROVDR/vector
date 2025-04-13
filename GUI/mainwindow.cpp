@@ -154,13 +154,13 @@ void MainWindow::on_btn_run_clicked() {
     solver->setup(T, dt);
 
     thread = new QThread();
-    solver->moveToThread(thread);
+    //solver->moveToThread(thread);
 
-    connect(thread, &QThread::started, solver, &Solver::run);
-    connect(solver, &Solver::finished, thread, &QThread::quit);
-    connect(solver, &Solver::finished, solver, &Solver::deleteLater);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-
+    //connect(thread, &QThread::started, solver, &Solver::run);
+    //connect(solver, &Solver::finished, thread, &QThread::quit);
+    //connect(solver, &Solver::finished, solver, &Solver::deleteLater);
+    //connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    /*
     connect(solver, &Solver::progressUpdated, this, [=](double currentTime, double totalTime) {
         double progress = (currentTime / totalTime) * 100;
         timeSliderWidget->updateTimeStep();
@@ -171,7 +171,7 @@ void MainWindow::on_btn_run_clicked() {
         thread = nullptr;
         timeSliderWidget->stop();
     });
-
+    */
     thread->start();
 }
 

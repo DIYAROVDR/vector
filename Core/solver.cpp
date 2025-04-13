@@ -25,12 +25,12 @@ void Solver::run() {
     try {
         solveAllSteps();
         if (!isStopped) {
-            emit finished();
+            //emit finished();
         }
     } catch (const std::exception& ex) {
-        emit errorOccurred(QString("Error: %1").arg(ex.what()));
+        //emit errorOccurred(QString("Error: %1").arg(ex.what()));
     } catch (...) {
-        emit errorOccurred("Unknown error occurred.");
+        //emit errorOccurred("Unknown error occurred.");
     }
 }
 
@@ -128,7 +128,7 @@ void Solver::solveAllSteps() {
             dt *= 5.0;
             std::cout << "Increasing dt to " << dt << ".\n";
         }
-        emit progressUpdated(currentTime, totalTime);
+        //emit progressUpdated(currentTime, totalTime);
         std::cout << "Step completed. Current time: " << currentTime << " / " << totalTime << "\n";
     }
 

@@ -1,6 +1,4 @@
 #include "customoutputwindow.h"
-#include <vtkObjectFactory.h>
-#include <QString>
 
 vtkStandardNewMacro(CustomOutputWindow);
 

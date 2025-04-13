@@ -11,8 +11,8 @@
 #include <QRegExpValidator>
 #include <QDebug>
 
-#include "ttdelegate.h"
-#include "cubestreemodel.h"
+#include "../GUI/ttdelegate.h"
+#include "../GUI/cubestreemodel.h"
 
 class CubeTreeWidget : public QWidget {
     Q_OBJECT

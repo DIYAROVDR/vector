@@ -37,7 +37,7 @@ void Well::update() {
     for(auto&  control : welldata->getControls()) {
         if(time < control.time) break;
 
-        if(control.type == UnitType::PRESSURE) {
+        if(control.type == Unit::Types::PRESSURE) {
             for(auto& perf : welldata->getPerforations()) {
                 if(perf.isStop) break;
                 int i = perf.index;

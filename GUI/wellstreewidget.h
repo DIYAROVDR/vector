@@ -7,9 +7,13 @@
 #include <QTreeView>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QVBoxLayout>
+#include <QHeaderView>
+#include <QStandardItem>
+#include <QRegExpValidator>
 
-#include "ttdelegate.h"
-#include "wellsproxymodel.h"
+#include "../GUI/ttdelegate.h"
+#include "../GUI/wellsproxymodel.h"
 
 class WellsTreeWidget : public QWidget {
     Q_OBJECT

@@ -3,7 +3,7 @@
 
 #include <QAbstractTableModel>
 
-#include "delegatetype.h"
+#include "../GUI/delegatetype.h"
 #include "../Core/h5filemanager.h"
 
 class LayerFillCubeModel : public QAbstractTableModel {

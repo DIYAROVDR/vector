@@ -1,12 +1,10 @@
 #ifndef GRIDDATAWIDGET_H
 #define GRIDDATAWIDGET_H
 
-#include <thread>
-#include <vtkDoubleArray.h>
 #include <QFileDialog>
 #include <QMessageBox>
-
-#include "creatorwidgets.h"
+#include <QVBoxLayout>
+#include <QPushButton>
 
 #include "../Core/h5filemanager.h"
 #include "../Core/blockcenteredgrid.h"
@@ -14,9 +12,8 @@
 
 #include "../GUI/multidelegate.h"
 #include "../GUI/griddatamodel.h"
-#include "treeview.h"
+#include "../GUI/treeview.h"
 
-#include <QVBoxLayout>
 
 class GridDataWidget : public QWidget {
     Q_OBJECT
@@ -27,9 +24,7 @@ public:
 
     Grid* getGrid();
     Well* getWell();
-
     void openProject();
-
 signals:
     void dimensChanged();
 

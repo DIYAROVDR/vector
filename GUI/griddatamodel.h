@@ -10,11 +10,10 @@
 #include <QDebug>
 #include <QMap>
 
-#include "delegatetype.h"
-
+#include "../GUI/delegatetype.h"
 #include "../Core/physicalquantity.h"
 #include "../Core/h5filemanager.h"
-#include <QDebug>
+
 class GridDataModel : public QAbstractItemModel {
     Q_OBJECT
 

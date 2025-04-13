@@ -1,16 +1,5 @@
 #include "h5filemanager.h"
 
-H5FileManager& H5FileManager::instance() {
-    static H5FileManager h5filemanager;
-    return h5filemanager;
-}
-
-
-bool H5FileManager::isOpen() {
-    return openFlag;
-}
-
-
 H5FileManager::H5FileManager() {
     datatypes = {
         {AttributeTypes::YEAR, "year"},
@@ -44,66 +33,9 @@ H5FileManager::H5FileManager() {
 H5FileManager::~H5FileManager() {}
 
 
-void H5FileManager::createAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group) {
-    H5::DataSpace attr_space(H5S_SCALAR);
-    for (const auto& pair : data) {
-        if (std::holds_alternative<int>(pair.second)) {
-            H5::Attribute attr = group.createAttribute(pair.first, H5::PredType::NATIVE_INT, attr_space);
-            attr.write(H5::PredType::NATIVE_INT, &std::get<int>(pair.second));
-        } else if (std::holds_alternative<double>(pair.second)) {
-            H5::Attribute attr = group.createAttribute(pair.first, H5::PredType::NATIVE_DOUBLE, attr_space);
-            attr.write(H5::PredType::NATIVE_DOUBLE, &std::get<double>(pair.second));
-        }
-    }
-}
-
-
-void H5FileManager::saveToAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group) {
-    H5::DataSpace attr_space(H5S_SCALAR);
-
-    for (const auto& pair : data) {
-        if (std::holds_alternative<int>(pair.second)) {
-            H5::Attribute attr = group.openAttribute(pair.first);
-            attr.write(H5::PredType::NATIVE_INT, &std::get<int>(pair.second));
-        } else if (std::holds_alternative<double>(pair.second)) {
-            H5::Attribute attr = group.openAttribute(pair.first);
-            attr.write(H5::PredType::NATIVE_DOUBLE, &std::get<double>(pair.second));
-        }
-    }
-
-}
-
-
-void H5FileManager::saveStringAttribute(H5::Group &group, const std::string &name, const std::string &value) {
-    // Общий метод для сохранения строкового атрибута
-    H5::DataSpace attr_space(H5S_SCALAR);
-    H5::StrType str_type(H5::PredType::C_S1, value.size());
-    if (group.attrExists(name)) {
-        group.removeAttr(name);
-    }
-    H5::Attribute attr = group.createAttribute(name, str_type, attr_space);
-    attr.write(str_type, value);
-}
-
-std::string H5FileManager::readStringAttribute(H5::Group &group, const std::string &name) {
-    // Общий метод для чтения строкового атрибута
-    if (!openFlag || !group.attrExists(name)) {
-        return "";
-    }
-    H5::Attribute attr = group.openAttribute(name);
-    H5::DataType dtype = attr.getDataType();
-    size_t size = dtype.getSize();
-    std::string value(size, '\0');
-    attr.read(dtype, &value[0]);
-    value.resize(strlen(value.c_str()));
-    return value;
-}
-
-H5::Group H5FileManager::getWellGroup(const std::string& name) {
-    if (!wells.exists(name)) {
-        return wells.createGroup(name);
-    }
-    return wells.openGroup(name);
+H5FileManager& H5FileManager::instance() {
+    static H5FileManager h5filemanager;
+    return h5filemanager;
 }
 
 
@@ -136,12 +68,12 @@ void H5FileManager::openFile(const std::string& path) {
             {"second", 0},
             {"unit_system_type", static_cast<int>(Unit::System::TS)},
             {"water", 1},
-            {"oil", 0},
-            {"gas", 0},
-            {"disgas", 0},
+            {"oil", 1},
+            {"gas", 1},
+            {"disgas", 1},
             {"vapoil", 1},
             {"fipnum",1},
-            {"pvtnum",1},
+            {"pvtnum",5},
             {"satnum",1},
             {"rocknum", 1},
             {"eqlnum", 1}
@@ -160,8 +92,93 @@ void H5FileManager::openFile(const std::string& path) {
         };
 
         createAttribute(datagrid, grid);
+        createStructPVT();
     }
     openFlag = true;
+}
+
+
+bool H5FileManager::isOpen() {
+    return openFlag;
+}
+
+void H5FileManager::createAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group) {
+    H5::DataSpace attr_space(H5S_SCALAR);
+    for (const auto& pair : data) {
+        if (std::holds_alternative<int>(pair.second)) {
+            H5::Attribute attr = group.createAttribute(pair.first, H5::PredType::NATIVE_INT, attr_space);
+            attr.write(H5::PredType::NATIVE_INT, &std::get<int>(pair.second));
+        } else if (std::holds_alternative<double>(pair.second)) {
+            H5::Attribute attr = group.createAttribute(pair.first, H5::PredType::NATIVE_DOUBLE, attr_space);
+            attr.write(H5::PredType::NATIVE_DOUBLE, &std::get<double>(pair.second));
+        }
+    }
+}
+
+
+void H5FileManager::saveToAttribute(const std::map<std::string, std::variant<int, double>>& data, H5::Group& group) {
+    H5::DataSpace attr_space(H5S_SCALAR);
+
+    for (const auto& pair : data) {
+        if (std::holds_alternative<int>(pair.second)) {
+            H5::Attribute attr = group.openAttribute(pair.first);
+            attr.write(H5::PredType::NATIVE_INT, &std::get<int>(pair.second));
+        } else if (std::holds_alternative<double>(pair.second)) {
+            H5::Attribute attr = group.openAttribute(pair.first);
+            attr.write(H5::PredType::NATIVE_DOUBLE, &std::get<double>(pair.second));
+        }
+    }
+
+}
+
+
+void H5FileManager::saveStringAttribute(H5::Group& group, const std::string& name, const std::string& value) {
+    // Общий метод для сохранения строкового атрибута
+    H5::DataSpace attr_space(H5S_SCALAR);
+    H5::StrType str_type(H5::PredType::C_S1, value.size());
+    if (group.attrExists(name)) {
+        group.removeAttr(name);
+    }
+    H5::Attribute attr = group.createAttribute(name, str_type, attr_space);
+    attr.write(str_type, value);
+}
+
+
+void H5FileManager::createStructPVT() {
+    int regcount = readNumericAttribute<int>(general, "pvtnum");
+    Eigen::Array<int, 5, 1> fluids = getFluids();
+    for (int i = 0; i < regcount; ++i) {
+        H5::Group group = pvt.createGroup("region_" + std::to_string(i + 1));
+        for (int j = 0; j < fluids.size(); ++j) {
+            if (fluids[j] != 0) {
+                auto type = static_cast<int>(AttributeTypes::WATER) + j;
+                group.createGroup(datatypes[static_cast<AttributeTypes>(type)]);
+            }
+        }
+    }
+}
+
+
+std::string H5FileManager::readStringAttribute(H5::Group& group, const std::string& name) {
+    // Общий метод для чтения строкового атрибута
+    if (!openFlag || !group.attrExists(name)) {
+        return "";
+    }
+    H5::Attribute attr = group.openAttribute(name);
+    H5::DataType dtype = attr.getDataType();
+    size_t size = dtype.getSize();
+    std::string value(size, '\0');
+    attr.read(dtype, &value[0]);
+    value.resize(strlen(value.c_str()));
+    return value;
+}
+
+
+H5::Group H5FileManager::getWellGroup(const std::string& name) {
+    if (!wells.exists(name)) {
+        return wells.createGroup(name);
+    }
+    return wells.openGroup(name);
 }
 
 
@@ -321,21 +338,40 @@ Grid::Initialization H5FileManager::typeInitialization() {
 }
 
 
-Grid::Type H5FileManager::typeGrid() {
+Grid::Type H5FileManager::getTypeGrid() {
     auto defval = static_cast<int>(Grid::Type::BLOCKCENTERED);
     return static_cast<Grid::Type>(readScalarAttribute(general, "type_grid", defval));
 }
 
 
-Eigen::Array<int, 5, 1> H5FileManager::regions() {
+Eigen::Array<int, 5, 1> H5FileManager::getRegions() {
     Eigen::Array<int, 5, 1> reg;
-
+    int index = 0;
+    for (auto& pair : datatypes) {
+        if (pair.first >= AttributeTypes::FIPNUM && pair.first <= AttributeTypes::EQLNUM) {
+            reg[index] = readNumericAttribute<int>(general, pair.second);
+            ++index;
+        }
+    }
     return reg;
 }
 
 
-Eigen::Array3i H5FileManager::dimens() {
-    Eigen::Array3i dim{1,1,1};
+Eigen::Array<int, 5, 1> H5FileManager::getFluids() {
+    Eigen::Array<int, 5, 1> fluids;
+    int index = 0;
+    for (auto& pair : datatypes) {
+        if (pair.first >= AttributeTypes::WATER && pair.first <= AttributeTypes::VAPOIL) {
+            fluids[index] = readNumericAttribute<int>(general, pair.second);
+            ++index;
+        }
+    }
+    return fluids;
+}
+
+
+Eigen::Array<int, 3, 1> H5FileManager::getDimens() {
+    Eigen::Array<int, 3, 1> dim{1, 1, 1};
 
     if (!openFlag) {
         return dim;

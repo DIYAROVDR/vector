@@ -1,6 +1,7 @@
 #ifndef H5FILEMANAGER_H
 #define H5FILEMANAGER_H
 
+#include <iostream>
 #include <string>
 #include <variant>
 #include <filesystem>
@@ -37,9 +38,11 @@ public:
     std::string startDate();
     Unit::System unitSystem();
     Grid::Initialization typeInitialization();
-    Grid::Type typeGrid();
-    Eigen::Array<int, 5, 1> regions();
-    Eigen::Array3i dimens();
+    Grid::Type getTypeGrid();
+    Eigen::Array<int, 5, 1> getRegions();
+    Eigen::Array<int, 5, 1> getFluids();
+    Eigen::Array<int, 3, 1> getDimens();
+
 
     Eigen::Matrix<double, Eigen::Dynamic, 4> loadWelltrack(const std::string& name);    
     Eigen::Matrix<double, Eigen::Dynamic, 7> loadPerforation(const std::string& name);
@@ -67,44 +70,36 @@ private:
     H5::Group wells;
 
     enum class AttributeTypes {
-        GENERAL,
-        YEAR,
-        MONTH,
-        DAY,
-        HOUR,
-        MINUTE,
-        SECOND,
-        UNIT_SYSTEM_TYPE,
-        WATER,
-        OIL,
-        GAS,
-        DISGAS,
-        VAPOIL,
-        FIPNUM,
-        PVTNUM,
-        SATNUM,
-        ROCKNUM,
-        EQLNUM,
-        GRID,
-        NX,
-        NY,
-        NZ,
-        GRID_TYPE,
-        LAYERS_COUNT,
-        PINCH_VERT,
-        PINCH_HOR
+        GENERAL, YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, UNIT_SYSTEM_TYPE, WATER, OIL, GAS, DISGAS, VAPOIL, FIPNUM,
+        PVTNUM, SATNUM, ROCKNUM, EQLNUM, GRID, NX, NY, NZ, GRID_TYPE, LAYERS_COUNT, PINCH_VERT, PINCH_HOR
     };
 
     std::map<AttributeTypes, std::string> datatypes;
     DataMap datageneral;
     DataMap datagrid;
+    DataMap datapvt;
 
     void createAttribute(const DataMap& data, H5::Group& group);
     void saveToAttribute(const DataMap& data, H5::Group& group);
     void saveStringAttribute(H5::Group& group, const std::string& name, const std::string& value);
+    void createStructPVT();
     H5::Group getWellGroup(const std::string& name);
     std::string readStringAttribute(H5::Group& group, const std::string& name);
 
+    template<typename T>
+    T readNumericAttribute(H5::Group& group, const std::string& name) {
+        if (!group.attrExists(name)) {
+            return T();
+        }
+        H5::Attribute attr = group.openAttribute(name);
+        H5::DataType dtype = attr.getDataType();
+        if (dtype.getClass() != H5T_INTEGER && dtype.getClass() != H5T_FLOAT) {
+            throw std::runtime_error("Attribute is not numeric");
+        }
+        T value;
+        attr.read(dtype, &value);
+        return value;
+    }
 
     template<typename Container>
     void saveToMap(DataMap& data, AttributeTypes begin, AttributeTypes end, const Container& array) {
@@ -123,8 +118,6 @@ private:
         }
     }
 
-
-    // Общий метод для сохранения скалярного атрибута
     template<typename T>
     void saveScalarAttribute(H5::Group& group, const std::string& name, const T& value) {
         H5::DataSpace attr_space(H5S_SCALAR);
@@ -135,8 +128,6 @@ private:
         attr.write(H5::PredType::NATIVE_INT, &value);
     }
 
-
-    // Общий метод для чтения скалярного атрибута
     template<typename T>
     T readScalarAttribute(H5::Group& group, const std::string& name, T defaultValue) {
         if (!openFlag || !group.attrExists(name)) {
@@ -148,8 +139,6 @@ private:
         return value;
     }
 
-
-    // Общий метод для сохранения данных в группе с проверкой существования
     template<typename T>
     void saveDataWithCheck(H5::Group& group, const std::string& name, const T& data) {
         if (group.exists(name)) {
@@ -157,7 +146,6 @@ private:
         }
         EigenHDF5::save(group, name, data);
     }
-
 
     template<typename T, int Cols>
     Eigen::Matrix<double, Eigen::Dynamic, Cols> loadWellData(const std::string& wellName, const std::string& dataName) {

@@ -3,6 +3,7 @@
 PVTTreeModel::PVTTreeModel(PhysicalQuantity* physicalquantity, QObject* parent):
         quantity(physicalquantity),
         QAbstractItemModel(parent),
+        h5filemanager(H5FileManager::instance()),
         rootNode(new TreeNode("PVT")) {
 
     bold.setBold(true);
@@ -257,8 +258,6 @@ QVector<QVector<double>> PVTTreeModel::tableData() {
     Eigen::ArrayXd muwArray = waterpvt[row]->mutab();
     Eigen::ArrayXd bwArray = waterpvt[row]->btab();
     Eigen::ArrayXd pwArray = waterpvt[row]->ptab();
-
-    std::cout<< bwArray <<std::endl;
 
     auto muw = quantity->diconvert(muwArray, PhysicalQuantity::Types::VISCOSITY);
     auto bw = quantity->diconvert(bwArray, PhysicalQuantity::Types::VOLUMETRIC_EXPANSION);

@@ -2,7 +2,7 @@
 #define LAYERFILLCUBEMODEL_H
 
 #include <QAbstractTableModel>
-
+#include <QDebug>
 #include "../GUI/delegatetype.h"
 #include "../Core/h5filemanager.h"
 
@@ -18,7 +18,6 @@ public:
     void setCurrentCube(const QString& cube);
     void saveCube();
     void setConstValue(int val);
-private:
 public slots:
     void updateDimens();
 private:

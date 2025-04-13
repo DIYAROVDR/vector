@@ -7,9 +7,9 @@
 #include "delegatetype.h"
 #include <iostream>
 
+#include "../Core/h5filemanager.h"
 #include "../Core/physicalquantity.h"
 #include "../Core/pvtw.h"
-
 
 class PVTTreeModel : public QAbstractItemModel {
     Q_OBJECT
@@ -43,16 +43,16 @@ private:
         TreeNode* parent;
 
         TreeNode(
-                const QString& name,
-                TreeNode* parent = nullptr,
-                double value = 0.0,
-                Unit::Types type = Unit::Types::UNDEFINED,
-                bool select = false):
-                name(name),
-                parent(parent),
-                value(value),
-                type(type),
-                select(select) {
+            const QString& name,
+            TreeNode* parent = nullptr,
+            double value = 0.0,
+            Unit::Types type = Unit::Types::UNDEFINED,
+            bool select = false):
+            name(name),
+            parent(parent),
+            value(value),
+            type(type),
+            select(select) {
         }
 
         ~TreeNode() {
@@ -68,6 +68,7 @@ private:
     };
 
     PhysicalQuantity* quantity;
+    H5FileManager& h5filemanager;
 
     TreeNode* rootNode;
     TreeNode* regionsNode;

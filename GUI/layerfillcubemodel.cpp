@@ -1,5 +1,4 @@
 #include "layerfillcubemodel.h"
-#include <QDebug>
 
 LayerFillCubeModel::LayerFillCubeModel(QObject* parent):
                     QAbstractTableModel{parent},
@@ -144,7 +143,7 @@ void LayerFillCubeModel::saveCube() {
 
 
 void LayerFillCubeModel::updateDimens() {
-    Eigen::Array3i dim = h5filemanager.dimens();
+    Eigen::Array3i dim = h5filemanager.getDimens();
     int nzold = nz;
     nx = dim[0];
     ny = dim[1];
